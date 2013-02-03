@@ -57,19 +57,19 @@ default_asides: [asides/recent_posts.html, asides/github.html, asides/twitter.ht
 #   3rd Party Settings    #
 # ----------------------- #
 
-# Github repositories
-github_user: laurentpetit
-github_repo_count: 0
-github_show_profile_link: true
-github_skip_forks: true
-
 # Twitter
 twitter_user: petitlaurent
-twitter_tweet_count: 3
-twitter_show_replies: true
+twitter_tweet_count: 2
+twitter_show_replies: false
 twitter_follow_button: true
 twitter_show_follower_count: false
 twitter_tweet_button: true
+
+# Github repositories
+github_user:
+github_repo_count: -1
+github_show_profile_link: true
+github_skip_forks: true
 
 # Google +1
 google_plus_one: true

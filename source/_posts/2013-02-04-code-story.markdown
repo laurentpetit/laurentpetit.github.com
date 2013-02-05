@@ -55,9 +55,9 @@ Pour cette épreuve, écrire un algorithme récursif "naïf", puis tenter des op
 > Pour être honnête, sur ce genre de problème, le langage de programmation importe peu
 
 Si vous n'avez pas le bon algorithme, aucun langage ni aucun ordinateur si puissant soit-il ne vous viendra en aide : vous n'y arriverez pas.
-Un algorithme de complexité algorithmique est quasi linéaire (dont le temps de réponse est proportionnel, ou légèrement proportionnel au nombre d'éléments à traiter) l'emportera haut la main sur n'importe quel algorithme exponentiel, et ce très rapidement (dès que la taille du problème dépassera quelques dizaines d'éléments).
+Un algorithme de complexité algorithmique quasi linéaire (dont le temps de réponse est proportionnel, ou légèrement proportionnel au nombre d'éléments à traiter) l'emportera haut la main sur n'importe quel algorithme de complexité exponentielle, et ce dès que la taille du problème dépassera quelques dizaines d'éléments.
 
-Là encore, j'aimerais souligner les **caractéristiques de Clojure qui ont facilité la résolution de ce problème**:
+Là encore, soulignons les **caractéristiques de Clojure qui ont facilité la résolution de ce problème**:
 
 - **Facilité de prototypage** : la librairie de base de Clojure est riche en fonctions de manipulation de collections. Les sort, group-by, max-key, etc. y sont presque toutes !
 - **Facilité de refactoring** : le code produit restant concis, il est facile de le refactorer, d'en produire une version différente. Le fait de manipuler des fonctions plutôt que des classes est un accélérateur de ce phénomène.

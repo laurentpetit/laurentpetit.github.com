@@ -5,11 +5,11 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Laurent Petit's Blog</title>
+  <title>Un Petit blog pour Laurent ...</title>
   <meta name="author" content="Laurent Petit">
 
   
-  <meta name="description" content="J&#8217;ai eu le plaisir de participer et me qualifier à la première phase de Code Story. Pour y parvenir j&#8217;ai choisi d&#8217;utiliser le &hellip;">
+  <meta name="description" content="Cet article est le premier d&#8217;une série visant à présenter le langage Clojure via l&#8217;implémentation d&#8217;une solution tout Clojure au &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -24,20 +24,32 @@
   <script src="/javascripts/modernizr-2.0.js"></script>
   <script src="/javascripts/ender.js"></script>
   <script src="/javascripts/octopress.js" type="text/javascript"></script>
-  <link href="/atom.xml" rel="alternate" title="Laurent Petit's Blog" type="application/atom+xml">
+  <link href="/atom.xml" rel="alternate" title="Un Petit blog pour Laurent ..." type="application/atom+xml">
   <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
 <link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
 <link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
 
   
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-38261989-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
 
 </head>
 
 <body   >
   <header role="banner"><hgroup>
-  <h1><a href="/">Laurent Petit's Blog</a></h1>
+  <h1><a href="/">Un Petit blog pour Laurent ...</a></h1>
   
-    <h2>Clojure for mere mortals...</h2>
+    <h2>... mais non je déconne, c'est con un titre de blog ...</h2>
   
 </hgroup>
 
@@ -88,36 +100,36 @@
 
 <time datetime="2013-02-04T00:11:00+01:00" pubdate data-updated="true">Feb 4<span>th</span>, 2013</time>
         
+         | <a href="/blog/2013/02/04/code-story/#disqus_thread">Comments</a>
+        
       </p>
     
   </header>
 
 
-  <div class="entry-content"><p>J&#8217;ai eu le plaisir de participer et me qualifier à la première phase de <a href="http://code-story.net/2013/01/04/concours-2013.html">Code Story</a>.</p>
+  <div class="entry-content"><p>Cet article est le premier d&#8217;une série visant à présenter le langage <a href="http://www.clojure.org">Clojure</a> via l&#8217;implémentation d&#8217;une solution <em>tout Clojure</em> au challenge CodeStory.</p>
+
+<h1>C&#8217;est à quel sujet ?</h1>
+
+<p>J&#8217;ai eu le plaisir de participer et me qualifier à la première phase du concours de programmation <a href="http://code-story.net/2013/01/04/concours-2013.html">Code Story 2013</a>.</p>
 
 <p>Pour y parvenir <strong>j&#8217;ai choisi d&#8217;utiliser le langage <a href="http://www.clojure.org">Clojure</a></strong>.</p>
 
-<p>Je voulais apporter un peu d&#8217;exotisme en utilisant la <strong>programmation fonctionnelle</strong>, pour changer un peu de toutes les contributions qui allaient utiliser le même paradigme impératif (Java, Kotlin, Ceylon, Groovy, etc.).</p>
+<p>Je voulais apporter un peu d&#8217;exotisme en utilisant la <strong>programmation fonctionnelle</strong>, pour changer un peu de toutes les contributions qui allaient utiliser le même paradigme impératif (Java, Kotlin, Ceylon, Groovy, Scala, etc.).</p>
 
-<blockquote><p>Non, mieux, je voulais porter haut et fort les couleurs de Clojure !</p></blockquote>
-
-<p>Cette série d&#8217;article a pour objectif de faire découvrir Clojure au travers de l&#8217;implémentation d&#8217;une solution au challenge CodeStory.</p>
-
-<p><strong>Ce premier article se concentre sur quelques caractéristiques du concours, et les qualités de Clojure qui ont permis de les adresser.</strong></p>
+<blockquote><p>Ce premier article se concentre sur quelques caractéristiques du concours, et pourquoi Clojure est un langage de choix pour les adresser</p></blockquote>
 
 <h1>Web Services</h1>
 
-<p>Pour participer à l&#8217;épreuve, il fallait mettre en place un serveur Web.</p>
+<p>Pour participer à l&#8217;épreuve, il fallait mettre en place un serveur Web. <strong>Toutes les questions, y compris les énoncés, ont été envoyées par HTTP GET ou POST.</strong></p>
 
-<blockquote><p>Toutes les questions, y compris les énoncés, ont été envoyées par HTTP GET ou POST.</p></blockquote>
+<p><a href="https://github.com/ring-clojure/ring">Ring</a> est la librairie standard Clojure pour écrire des applications Web. C&#8217;est une abstraction &#8220;minimaliste&#8221; (mais pas simpliste !) d&#8217;un serveur web.</p>
 
-<p>Il existe une librairie standard Clojure pour écrire des serveurs Web : (<a href="https://github.com/ring-clojure/ring">Ring</a>). C&#8217;est une abstraction &#8220;minimaliste&#8221; d&#8217;un serveur web, standardisant sous forme de structures de données simples (tableaux associatifs, listes) la requête et la réponse HTTP, et la manière d&#8217;écrire des fonctions handlers (équivalent des servlets) et des middlewares (l&#8217;équivalent des filtres).</p>
-
-<blockquote><p>Ecrire un serveur Web avec le standard Clojure+Ring : simple, concis, lisible.</p></blockquote>
+<blockquote><p>Clojure+Ring pour faire une appli Web : c&#8217;est simple, lisible, concis</p></blockquote>
 
 <h1>TDD</h1>
 
-<p>Le déroulement des épreuves imposait un format analogue à la méthodologie <code>TDD</code> (Test Driven Developments) :</p>
+<p>Le déroulement des épreuves imposait un format analogue à la méthodologie <code>TDD</code> (Test-Driven Development) :</p>
 
 <ul>
 <li>Envoi d&#8217;un test en boucle sur nos serveurs, jusqu&#8217;à obtention d&#8217;une réponse correcte</li>
@@ -125,46 +137,45 @@
 </ul>
 
 
-<p>Dans ces conditions, il n&#8217;est pas rare (ni anormal) d&#8217;avoir à réécrire des portions de code à de multiples reprises.</p>
+<p>Dans ces conditions, il n&#8217;est pas rare (ni anormal) d&#8217;avoir à réécrire de grandes portions de code.
+<em>Une étape de refactoring entre chaque nouveau test est généralement nécessaire en TDD</em></p>
 
-<blockquote><p>Une étape de refactoring entre chaque nouveau test est généralement nécessaire en TDD</p></blockquote>
-
-<p>Développer en TDD avec Clojure est naturel :</p>
+<p><strong>Il est naturel d&#8217;adopter l&#8217;approche TDD en Clojure</strong>, car le langage :</p>
 
 <ul>
-<li>Facilite l&#8217;écriture des tests : les tests sont concis, lisibles, faciles à refactorer.</li>
-<li>Facilite l&#8217;écriture du code : écrire du nouveau code en Clojure est une danse entre l&#8217;éditeur et l&#8217;environnement dynamique d&#8217;exécution. Tout code nouveau est façonné / testé dans l&#8217;environnement d&#8217;exécution. Imaginez le remplacement à chaud du mode Debug de votre IDE, &#8220;on steroïds&#8221;.</li>
-<li>Favorise le refactoring : le code Clojure est généralement très concis. Souvent 3 à 10 fois plus concis que son équivalent Java, par ex. La masse de code à modifier fait moins peur. De plus, l&#8217;unité de réutilisation de code étant la fonction, et non la classe, le code est naturellement plus facile à refactorer.</li>
+<li><strong>Facilite l&#8217;écriture des tests</strong> : les tests sont concis, lisibles, faciles à refactorer.</li>
+<li><strong>Facilite l&#8217;écriture du code</strong> : écrire du nouveau code en Clojure est une danse entre l&#8217;éditeur et l&#8217;environnement dynamique d&#8217;exécution. Tout nouveau code est façonné / testé dans l&#8217;environnement d&#8217;exécution. Imaginez le remplacement à chaud du mode Debug de votre IDE, <em>&#8220;on steroïds&#8221;</em>.</li>
+<li><strong>Favorise le refactoring</strong> : le code Clojure est généralement très concis. Souvent 3 à 10 fois plus concis que son équivalent Java, par exemple. La masse de code à modifier fait moins peur. De plus, l&#8217;unité de réutilisation de code étant la fonction, et non la classe, le code est naturellement plus facile à refactorer.</li>
 </ul>
 
 
-<blockquote><p>Clojure pour faire du TDD, c&#8217;est simple, concis, lisible et efficace.</p></blockquote>
+<blockquote><p>Clojure pour faire du TDD, c&#8217;est efficace, lisible, simple, concis</p></blockquote>
 
 <h1>Performances</h1>
 
-<p>La dernièr étape de l&#8217;épreuve a soumis nos méninges à rude épreuve. Il ne suffisait pas d&#8217;avoir un code qui fonctionne, il fallait trouver un code &#8220;performant&#8221;.</p>
+<p>Le dernier exercice du concours a soumis nos méninges à rude épreuve. Il ne suffisait pas d&#8217;avoir un code qui fonctionne, il fallait trouver un code &#8220;performant&#8221;.</p>
 
-<p>Mais pas &#8220;performant&#8221; comme dans &#8220;comment gagner quelques microsecondes dans l&#8217;exécution de ma routine&#8221;. NON. Performant comme dans &#8220;écrire un algorithme qui puisse prendre en charge des centaines de milliers d&#8217;éléments&#8221;.</p>
+<p>Mais pas <em>&#8220;Performant&#8221;</em> comme dans &#8220;comment gagner quelques microsecondes dans l&#8217;exécution d&#8217;une requête portant sur quelques éléments à traiter&#8221;. NON. <em>&#8220;Performant&#8221;</em> comme dans &#8220;écrire un algorithme pouvant traiter une requête portant sur plusieurs centaines de milliers, ou des millions, d&#8217;éléments&#8221;.</p>
 
-<p>Pour cette épreuve, écrire un algorithme récursif &#8220;naïf&#8221; puis tenter des optimisations locales dessus revenait à s&#8217;acharner à réparer les portes du Titanic pendant le naufrage. Ca occupe, mais ça ne sert plus à rien. Au-delà de 100 entrées, un algo &#8220;naïf&#8221; prenait déjà plusieurs dizaines de secondes. <strong>Pour CodeStory, il fallait être capable de traiter des requêtes de 50.000 éléments ou plus</strong> ! On attend toujours que les algorithmes récursifs aient fini de répondre &#8230; (pauvres chatons)</p>
+<p>Pour cette épreuve, écrire un algorithme récursif &#8220;naïf&#8221;, puis tenter des optimisations locales dessus, c&#8217;était un peu comme être sur le Titanic pendant le naufrage, à s&#8217;acharner à graisser les portes de la salle de réception. Ça occupe, mais ça ne sert à rien. Au-delà de 100 entrées, un algo &#8220;naïf&#8221; prenait déjà plusieurs dizaines de secondes. <strong>Pour CodeStory, il fallait être capable de traiter des requêtes de 50.000 éléments ou plus</strong> ! On attend toujours que les algorithmes récursifs aient fini de répondre &#8230; (<a href="https://twitter.com/CodeStory/status/297268190566813696">pauvres chatons</a>)</p>
 
-<blockquote><p>Pour être honnête, pour ce genre de problème, le langage de programmation importe peu</p></blockquote>
+<blockquote><p>Pour être honnête, sur ce genre de problème, le langage de programmation importe peu</p></blockquote>
 
-<p>Si vous n&#8217;avez pas le bon algorithme, vous pouvez prendre n&#8217;importe quel langage, et même n&#8217;importe quel ordinateur, vous n&#8217;y arriverez pas.
-Un algorithme dont la complexité algorithmique est quasi linéaire l&#8217;emportera haut la main sur n&#8217;importe quel algorithme exponentiel dès que le nombre d&#8217;éléments à traiter grossira un peu.</p>
+<p>Si vous n&#8217;avez pas le bon algorithme, aucun langage ni aucun ordinateur si puissant soit-il ne vous viendra en aide : vous n&#8217;y arriverez pas.
+Un algorithme de complexité algorithmique est quasi linéaire (dont le temps de réponse est proportionnel, ou légèrement proportionnel au nombre d&#8217;éléments à traiter) l&#8217;emportera haut la main sur n&#8217;importe quel algorithme exponentiel, et ce très rapidement (dès que la taille du problème dépassera quelques dizaines d&#8217;éléments).</p>
 
-<p>Là encore, j&#8217;aimerai souligner les caractéristiques de Clojure qui ont facilité la résolution de ce problème:</p>
+<p>Là encore, j&#8217;aimerais souligner les <strong>caractéristiques de Clojure qui ont facilité la résolution de ce problème</strong>:</p>
 
 <ul>
-<li>Facilité de prototypage : la librairie de base de Clojure est riche en fonctions de manipulation de collections. Les sort, group-by, max-key, etc. y sont presque toutes !</li>
-<li>Facilité de refactoring : le code produit restant concis, il est facile de le refactorer, d&#8217;en produire une version différente. Le fait de manipuler des fonctions plutôt que des classes est un accélérateur de ce phénomène.</li>
-<li>Code performant : et oui, même avec le bon algo, il reste important quand même que le langage utilisé ne soit pas un voire plusieurs ordres de grandeur moins performant que les langages concurrents. En utilisant du Clojure &#8220;idiomatique&#8221;, sans chercher à optimiser, sans compromettre la lisibilité (sous réserve de connaître Clojure et les fonctions standards utilisées, oeuf de course), le code produit s&#8217;est avéré du même ordre de grandeur que les solutions concurrentes. En moyenne seulement 2, parfois 3 fois moins rapide. Il serait possible d&#8217;optimiser pour aller &#8220;talonner&#8221; les langages impératifs (utilisation de tableaux, par ex.), mais c&#8217;était juste non requis, donc non nécessaire.</li>
+<li><strong>Facilité de prototypage</strong> : la librairie de base de Clojure est riche en fonctions de manipulation de collections. Les sort, group-by, max-key, etc. y sont presque toutes !</li>
+<li><strong>Facilité de refactoring</strong> : le code produit restant concis, il est facile de le refactorer, d&#8217;en produire une version différente. Le fait de manipuler des fonctions plutôt que des classes est un accélérateur de ce phénomène.</li>
+<li><strong>Code performant</strong> : à algorithme identique, il reste important que le langage utilisé ne soit pas extrêmement plus lent que les langages &#8220;concurrents&#8221;. En utilisant du Clojure &#8220;idiomatique&#8221;, sans chercher à optimiser, sans compromettre la lisibilité (sous réserve de connaître Clojure et les fonctions standards utilisées, oeuf de course), le code produit s&#8217;est avéré du même ordre de grandeur que les solutions concurrentes. En moyenne seulement 2, parfois 3 fois moins rapide. Il serait possible d&#8217;optimiser pour aller &#8220;talonner&#8221; les langages impératifs (utilisation de tableaux, par ex.), mais c&#8217;était juste non requis, donc non nécessaire.</li>
 </ul>
 
 
 <h1>C&#8217;est tout pour aujourd&#8217;hui</h1>
 
-<p>Si ce premier article vous a mis l&#8217;eau à la bouche, et que vous souhaitez que je continue la série avec des articles techniques et du code, faites-le moi savoir.</p>
+<p>Si ce premier article vous a mis l&#8217;eau à la bouche, et que vous souhaitez que je continue la série avec des articles techniques et du code, envoyez-moi un petit mot d&#8217;encouragement :-).</p>
 
 <p>Merci de m&#8217;avoir lu.</p>
 </div>
@@ -206,15 +217,15 @@ Un algorithme dont la complexité algorithmique est quasi linéaire l&#8217;empo
   </script>
   <script src="/javascripts/twitter.js" type="text/javascript"> </script>
   
-    <a href="http://twitter.com/petitlaurent" class="twitter-follow-button" data-show-count="false">Follow @petitlaurent</a>
+    <a href="http://twitter.com/petitlaurent" class="twitter-follow-button" data-show-count="true">Follow @petitlaurent</a>
   
 </section>
 
 
 
-<section class="googleplus">
+<section class="googleplus googleplus-hidden">
   <h1>
-    <a href="https://plus.google.com/laurent.petit?rel=author">
+    <a href="https://plus.google.com/laurent.petit@gmail.com?rel=author">
       <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
       Google+
     </a>
@@ -236,17 +247,22 @@ Un algorithme dont la complexité algorithmique est quasi linéaire l&#8217;empo
 </footer>
   
 
+<script type="text/javascript">
+      var disqus_shortname = 'laurentpetit';
+      
+        
+        var disqus_script = 'count.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
 
 
 
 
-  <script type="text/javascript">
-    (function() {
-      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
-      script.src = 'https://apis.google.com/js/plusone.js';
-      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
-    })();
-  </script>
 
 
 

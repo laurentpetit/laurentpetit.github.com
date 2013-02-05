@@ -3,8 +3,8 @@
 # ----------------------- #
 
 url: http://laurentpetit.github.com
-title: Laurent Petit's Blog
-subtitle: Clojure for mere mortals...
+title: Un Petit blog pour Laurent ...
+subtitle: ... mais non je déconne, c'est con un titre de blog ...
 author: Laurent Petit
 simple_search: http://google.com/search
 description:
@@ -62,7 +62,7 @@ twitter_user: petitlaurent
 twitter_tweet_count: 2
 twitter_show_replies: false
 twitter_follow_button: true
-twitter_show_follower_count: false
+twitter_show_follower_count: true
 twitter_tweet_button: true
 
 # Github repositories
@@ -72,13 +72,13 @@ github_show_profile_link: true
 github_skip_forks: true
 
 # Google +1
-google_plus_one: true
+google_plus_one: false
 google_plus_one_size: medium
 
 # Google Plus Profile
 # Hidden: No visible button, just add author information to search results
-googleplus_user: laurent.petit
-googleplus_hidden: false
+googleplus_user: laurent.petit@gmail.com
+googleplus_hidden: true
 
 # Pinboard
 pinboard_user:
@@ -89,11 +89,11 @@ delicious_user:
 delicious_count: 3
 
 # Disqus Comments
-disqus_short_name:
-disqus_show_comment_count: false
+disqus_short_name: laurentpetit
+disqus_show_comment_count: true
 
 # Google Analytics
-google_analytics_tracking_id:
+google_analytics_tracking_id: UA-38261989-1
 
 # Facebook Like
 facebook_like: false

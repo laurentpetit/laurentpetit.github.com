@@ -5,12 +5,13 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Blog Archive - Un Petit blog pour Laurent ...</title>
+  <title>Blog Archive - Laurent Petit</title>
   <meta name="author" content="Laurent Petit">
 
   
-  <meta name="description" content="Blog Archive 2013 Code Story, Clojure et moi
-Feb 04 2013 Recent Posts Code Story, Clojure et moi Latest Tweets Status updating... $.domReady( &hellip;">
+  <meta name="description" content="Blog Archive 2013 The Clojure Omnibus
+Nov 05 2013 Code Story, Clojure et moi
+Feb 04 2013 Recent Posts The Clojure Omnibus Code Story, Clojure Et Moi &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -19,13 +20,14 @@ Feb 04 2013 Recent Posts Code Story, Clojure et moi Latest Tweets Status updatin
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://laurentpetit.github.com/blog/archives/">
+  <link rel="canonical" href="http://laurentpetit.github.com/blog/archives">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Laurent Petit" type="application/atom+xml">
   <script src="/javascripts/modernizr-2.0.js"></script>
-  <script src="/javascripts/ender.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
   <script src="/javascripts/octopress.js" type="text/javascript"></script>
-  <link href="/atom.xml" rel="alternate" title="Un Petit blog pour Laurent ..." type="application/atom+xml">
   <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
 <link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
 <link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
@@ -48,9 +50,7 @@ Feb 04 2013 Recent Posts Code Story, Clojure et moi Latest Tweets Status updatin
 
 <body   >
   <header role="banner"><hgroup>
-  <h1><a href="/">Un Petit blog pour Laurent ...</a></h1>
-  
-    <h2>... mais non je déconne, c'est con un titre de blog ...</h2>
+  <h1><a href="/">Laurent Petit</a></h1>
   
 </hgroup>
 
@@ -92,6 +92,16 @@ Feb 04 2013 Recent Posts Code Story, Clojure et moi Latest Tweets Status updatin
 
 <article>
   
+<h1><a href="/blog/2013/11/05/the-clojure-omnibus/">The Clojure Omnibus</a></h1>
+<time datetime="2013-11-05T00:00:00+01:00" pubdate><span class='month'>Nov</span> <span class='day'>05</span> <span class='year'>2013</span></time>
+
+
+</article>
+
+
+
+<article>
+  
 <h1><a href="/blog/2013/02/04/code-story/">Code Story, Clojure et moi</a></h1>
 <time datetime="2013-02-04T00:11:00+01:00" pubdate><span class='month'>Feb</span> <span class='day'>04</span> <span class='year'>2013</span></time>
 
@@ -112,27 +122,14 @@ Feb 04 2013 Recent Posts Code Story, Clojure et moi Latest Tweets Status updatin
   <ul id="recent_posts">
     
       <li class="post">
-        <a href="/blog/2013/02/04/code-story/">Code Story, Clojure et moi</a>
+        <a href="/blog/2013/11/05/the-clojure-omnibus/">The Clojure Omnibus</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/02/04/code-story/">Code Story, Clojure Et Moi</a>
       </li>
     
   </ul>
-</section>
-
-
-<section>
-  <h1>Latest Tweets</h1>
-  <ul id="tweets">
-    <li class="loading">Status updating...</li>
-  </ul>
-  <script type="text/javascript">
-    $.domReady(function(){
-      getTwitterFeed("petitlaurent", 2, false);
-    });
-  </script>
-  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
-  
-    <a href="http://twitter.com/petitlaurent" class="twitter-follow-button" data-show-count="true">Follow @petitlaurent</a>
-  
 </section>
 
 
@@ -170,7 +167,7 @@ Feb 04 2013 Recent Posts Code Story, Clojure et moi Latest Tweets Status updatin
       
     (function () {
       var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
       (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
     }());
 </script>
@@ -186,7 +183,7 @@ Feb 04 2013 Recent Posts Code Story, Clojure et moi Latest Tweets Status updatin
       var twitterWidgets = document.createElement('script');
       twitterWidgets.type = 'text/javascript';
       twitterWidgets.async = true;
-      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
       document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
     })();
   </script>

@@ -5,7 +5,7 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Code Story, Clojure et moi - Un Petit blog pour Laurent ...</title>
+  <title>Code Story, Clojure et moi - Laurent Petit</title>
   <meta name="author" content="Laurent Petit">
 
   
@@ -18,13 +18,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://laurentpetit.github.com/blog/2013/02/04/code-story/">
+  <link rel="canonical" href="http://laurentpetit.github.com/blog/2013/02/04/code-story">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Laurent Petit" type="application/atom+xml">
   <script src="/javascripts/modernizr-2.0.js"></script>
-  <script src="/javascripts/ender.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
   <script src="/javascripts/octopress.js" type="text/javascript"></script>
-  <link href="/atom.xml" rel="alternate" title="Un Petit blog pour Laurent ..." type="application/atom+xml">
   <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
 <link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
 <link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
@@ -47,9 +48,7 @@
 
 <body   >
   <header role="banner"><hgroup>
-  <h1><a href="/">Un Petit blog pour Laurent ...</a></h1>
-  
-    <h2>... mais non je déconne, c'est con un titre de blog ...</h2>
+  <h1><a href="/">Laurent Petit</a></h1>
   
 </hgroup>
 
@@ -97,7 +96,8 @@
 
 <time datetime="2013-02-04T00:11:00+01:00" pubdate data-updated="true">Feb 4<span>th</span>, 2013</time>
         
-         | <a href="#disqus_thread">Comments</a>
+           | <a href="#disqus_thread"
+             data-disqus-identifier="http://laurentpetit.github.com">Comments</a>
         
       </p>
     
@@ -120,7 +120,7 @@
 
 <p>Pour participer à l&#8217;épreuve, il fallait mettre en place un serveur Web. <strong>Toutes les questions, y compris les énoncés, ont été envoyées par HTTP GET ou POST.</strong></p>
 
-<p><a href="https://github.com/ring-clojure/ring">Ring</a> est la librairie standard Clojure pour écrire des applications Web. C&#8217;est une abstraction &#8220;minimaliste&#8221; (mais pas simpliste !) d&#8217;un serveur web.</p>
+<p><a href="https://github.com/ring-clojure/ring">Ring</a> est la librairie standard Clojure pour écrire des applications Web. C&#8217;est une abstraction &ldquo;minimaliste&rdquo; (mais pas simpliste !) d&#8217;un serveur web.</p>
 
 <blockquote><p>Clojure+Ring pour faire une appli Web : c&#8217;est simple, lisible, concis</p></blockquote>
 
@@ -141,7 +141,7 @@
 
 <ul>
 <li><strong>Facilite l&#8217;écriture des tests</strong> : les tests sont concis, lisibles, faciles à refactorer.</li>
-<li><strong>Facilite l&#8217;écriture du code</strong> : écrire du nouveau code en Clojure est une danse entre l&#8217;éditeur et l&#8217;environnement dynamique d&#8217;exécution. Tout nouveau code est façonné / testé dans l&#8217;environnement d&#8217;exécution. Imaginez le remplacement à chaud du mode Debug de votre IDE, <em>&#8220;on steroïds&#8221;</em>.</li>
+<li><strong>Facilite l&#8217;écriture du code</strong> : écrire du nouveau code en Clojure est une danse entre l&#8217;éditeur et l&#8217;environnement dynamique d&#8217;exécution. Tout nouveau code est façonné / testé dans l&#8217;environnement d&#8217;exécution. Imaginez le remplacement à chaud du mode Debug de votre IDE, <em>&ldquo;on steroïds&rdquo;</em>.</li>
 <li><strong>Favorise le refactoring</strong> : le code Clojure est généralement très concis. Souvent 3 à 10 fois plus concis que son équivalent Java, par exemple. La masse de code à modifier fait moins peur. De plus, l&#8217;unité de réutilisation de code étant la fonction, et non la classe, le code est naturellement plus facile à refactorer.</li>
 </ul>
 
@@ -150,11 +150,11 @@
 
 <h1>Performances</h1>
 
-<p>Le dernier exercice du concours a soumis nos méninges à rude épreuve. Il ne suffisait pas d&#8217;avoir un code qui fonctionne, il fallait trouver un code &#8220;performant&#8221;.</p>
+<p>Le dernier exercice du concours a soumis nos méninges à rude épreuve. Il ne suffisait pas d&#8217;avoir un code qui fonctionne, il fallait trouver un code &ldquo;performant&rdquo;.</p>
 
-<p>Mais pas <em>&#8220;Performant&#8221;</em> comme dans &#8220;comment gagner quelques microsecondes dans l&#8217;exécution d&#8217;une requête portant sur quelques éléments à traiter&#8221;. NON. <em>&#8220;Performant&#8221;</em> comme dans &#8220;écrire un algorithme pouvant traiter une requête portant sur plusieurs centaines de milliers, ou des millions, d&#8217;éléments&#8221;.</p>
+<p>Mais pas <em>&ldquo;Performant&rdquo;</em> comme dans &ldquo;comment gagner quelques microsecondes dans l&#8217;exécution d&#8217;une requête portant sur quelques éléments à traiter&rdquo;. NON. <em>&ldquo;Performant&rdquo;</em> comme dans &ldquo;écrire un algorithme pouvant traiter une requête portant sur plusieurs centaines de milliers, ou des millions, d&#8217;éléments&rdquo;.</p>
 
-<p>Pour cette épreuve, écrire un algorithme récursif &#8220;naïf&#8221;, puis tenter des optimisations locales dessus, c&#8217;était un peu comme être sur le Titanic pendant le naufrage, à s&#8217;acharner à graisser les portes de la salle de réception. Ça occupe, mais ça ne sert à rien. Au-delà de 100 entrées, un algo &#8220;naïf&#8221; prenait déjà plusieurs dizaines de secondes. <strong>Pour CodeStory, il fallait être capable de traiter des requêtes de 50.000 éléments ou plus</strong> ! On attend toujours que les algorithmes récursifs aient fini de répondre &#8230; (<a href="https://twitter.com/CodeStory/status/297268190566813696">pauvres chatons</a>)</p>
+<p>Pour cette épreuve, écrire un algorithme récursif &ldquo;naïf&rdquo;, puis tenter des optimisations locales dessus, c&#8217;était un peu comme être sur le Titanic pendant le naufrage, à s&#8217;acharner à graisser les portes de la salle de réception. Ça occupe, mais ça ne sert à rien. Au-delà de 100 entrées, un algo &ldquo;naïf&rdquo; prenait déjà plusieurs dizaines de secondes. <strong>Pour CodeStory, il fallait être capable de traiter des requêtes de 50.000 éléments ou plus</strong> ! On attend toujours que les algorithmes récursifs aient fini de répondre &hellip; (<a href="https://twitter.com/CodeStory/status/297268190566813696">pauvres chatons</a>)</p>
 
 <blockquote><p>Pour être honnête, sur ce genre de problème, le langage de programmation importe peu</p></blockquote>
 
@@ -166,13 +166,13 @@ Un algorithme de complexité algorithmique quasi linéaire (dont le temps de ré
 <ul>
 <li><strong>Facilité de prototypage</strong> : la librairie de base de Clojure est riche en fonctions de manipulation de collections. Les sort, group-by, max-key, etc. y sont presque toutes !</li>
 <li><strong>Facilité de refactoring</strong> : le code produit restant concis, il est facile de le refactorer, d&#8217;en produire une version différente. Le fait de manipuler des fonctions plutôt que des classes est un accélérateur de ce phénomène.</li>
-<li><strong>Code performant</strong> : à algorithme identique, il reste important que le langage utilisé ne soit pas extrêmement plus lent que les langages &#8220;concurrents&#8221;. En utilisant du Clojure &#8220;idiomatique&#8221;, sans chercher à optimiser, sans compromettre la lisibilité (sous réserve de connaître Clojure et les fonctions standards utilisées, oeuf de course), le code produit s&#8217;est avéré du même ordre de grandeur que les solutions concurrentes. En moyenne seulement 2, parfois 3 fois moins rapide. Il serait possible d&#8217;optimiser pour aller &#8220;talonner&#8221; les langages impératifs (utilisation de tableaux, par ex.), mais c&#8217;était juste non requis, donc non nécessaire.</li>
+<li><strong>Code performant</strong> : à algorithme identique, il reste important que le langage utilisé ne soit pas extrêmement plus lent que les langages &ldquo;concurrents&rdquo;. En utilisant du Clojure &ldquo;idiomatique&rdquo;, sans chercher à optimiser, sans compromettre la lisibilité (sous réserve de connaître Clojure et les fonctions standards utilisées, oeuf de course), le code produit s&#8217;est avéré du même ordre de grandeur que les solutions concurrentes. En moyenne seulement 2, parfois 3 fois moins rapide. Il serait possible d&#8217;optimiser pour aller &ldquo;talonner&rdquo; les langages impératifs (utilisation de tableaux, par ex.), mais c&#8217;était juste non requis, donc non nécessaire.</li>
 </ul>
 
 
 <h1>C&#8217;est tout pour aujourd&#8217;hui</h1>
 
-<p>Si ce premier article vous a mis l&#8217;eau à la bouche, et que vous souhaitez que je continue la série avec des articles techniques et du code, envoyez-moi un petit mot d&#8217;encouragement :-).</p>
+<p>Si ce premier article vous a mis l&#8217;eau à la bouche, et que vous souhaitez que je continue la série avec des articles techniques et du code, envoyez-moi un petit mot d&#8217;encouragement :&ndash;).</p>
 
 <p>Merci de m&#8217;avoir lu.</p>
 </div>
@@ -205,7 +205,7 @@ Un algorithme de complexité algorithmique quasi linéaire (dont le temps de ré
     
       <div class="sharing">
   
-  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://laurentpetit.github.com/blog/2013/02/04/code-story/" data-via="petitlaurent" data-counturl="http://laurentpetit.github.com/blog/2013/02/04/code-story/" >Tweet</a>
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://laurentpetit.github.com/blog/2013/02/04/code-story/" data-via="petitlaurent" data-counturl="http://laurentpetit.github.com/blog/2013/02/04/code-story/" >Tweet</a>
   
   
   
@@ -214,6 +214,8 @@ Un algorithme de complexité algorithmique quasi linéaire (dont le temps de ré
     
     <p class="meta">
       
+      
+        <a class="basic-alignment right" href="/blog/2013/11/05/the-clojure-omnibus/" title="Next Post: The Clojure Omnibus">The Clojure Omnibus &raquo;</a>
       
     </p>
   </footer>
@@ -234,27 +236,14 @@ Un algorithme de complexité algorithmique quasi linéaire (dont le temps de ré
   <ul id="recent_posts">
     
       <li class="post">
-        <a href="/blog/2013/02/04/code-story/">Code Story, Clojure et moi</a>
+        <a href="/blog/2013/11/05/the-clojure-omnibus/">The Clojure Omnibus</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/02/04/code-story/">Code Story, Clojure Et Moi</a>
       </li>
     
   </ul>
-</section>
-
-
-<section>
-  <h1>Latest Tweets</h1>
-  <ul id="tweets">
-    <li class="loading">Status updating...</li>
-  </ul>
-  <script type="text/javascript">
-    $.domReady(function(){
-      getTwitterFeed("petitlaurent", 2, false);
-    });
-  </script>
-  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
-  
-    <a href="http://twitter.com/petitlaurent" class="twitter-follow-button" data-show-count="true">Follow @petitlaurent</a>
-  
 </section>
 
 
@@ -295,7 +284,7 @@ Un algorithme de complexité algorithmique quasi linéaire (dont le temps de ré
       
     (function () {
       var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
       (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
     }());
 </script>
@@ -311,7 +300,7 @@ Un algorithme de complexité algorithmique quasi linéaire (dont le temps de ré
       var twitterWidgets = document.createElement('script');
       twitterWidgets.type = 'text/javascript';
       twitterWidgets.async = true;
-      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
       document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
     })();
   </script>

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Un Petit blog pour Laurent ...]]></title>
+  <title><![CDATA[Laurent Petit]]></title>
   <link href="http://laurentpetit.github.com/atom.xml" rel="self"/>
   <link href="http://laurentpetit.github.com/"/>
-  <updated>2013-02-06T00:39:43+01:00</updated>
+  <updated>2013-11-07T11:37:36+01:00</updated>
   <id>http://laurentpetit.github.com/</id>
   <author>
     <name><![CDATA[Laurent Petit]]></name>
@@ -12,6 +12,495 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[The Clojure Omnibus]]></title>
+    <link href="http://laurentpetit.github.com/blog/2013/11/05/the-clojure-omnibus/"/>
+    <updated>2013-11-05T00:00:00+01:00</updated>
+    <id>http://laurentpetit.github.com/blog/2013/11/05/the-clojure-omnibus</id>
+    <content type="html"><![CDATA[<div class="paragraph">
+<p>This post is a port of the blog post <a href="http://www.code-story.net/blog/posts/s03e01.3">The Java Omnibus</a> to the <a href="http://www.clojure.org">Clojure</a> language.<br>
+It targets developers beginning or with some notions of Clojure, who want to quickly get up to speed with the episode&#8217;s algorithm challenge.</p>
+</div>
+<div class="sect1">
+<h2 id="the-tale-of-two-servers">The Tale Of Two Servers</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The goal of Code-Story <a href="http://www.code-story.net/blog/posts/s03e01.1">episode S03E01</a> is to code the algorithm that moves an elevator&#8217;s <code>cabin</code> within a <code>building</code>.</p>
+</div>
+<div class="paragraph">
+<p>There are two systems, the <code>building</code>, and the <code>cabin</code>. Two pieces of software, one for each. The Code-Story Team provides the <code>building</code> server and we (the competitors) write the <code>cabin</code> server.</p>
+</div>
+<div class="paragraph">
+<p>The Code-Story team provides a building server, which patiently waits for cabin server registrations. You manually register your cabin server through a dedicated web page: by giving its ip and port. Then the building server starts calling your cabin server periodically.</p>
+</div>
+<div class="paragraph">
+<p>When the building server calls your cabin server, it describes what&#8217;s happening. In this simulation, there is a limited set of events. People in the building can call the cabin from their floor. They can enter. Once inside the cabin they state at which floor they want to leave. Once the cabin is at the right floor they exit when it opens its doors.</p>
+</div>
+<div class="paragraph">
+<p>That&#8217;s all.</p>
+</div>
+<div class="paragraph">
+<p>The building server is going to call the cabin server through repeated http calls. For instance when someone enters the cabin, the building server calls the <code>/userHasEntered</code> url on the cabin server. When a user calls the elevator, the building server is going to call the <code>/call</code> url passing in query parameters the floor at which the call was made.</p>
+</div>
+<div class="sect2">
+<h3 id="the-short-version">The Short Version</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>The Code-Story team will provide a server for the building</p>
+</li>
+<li>
+<p>You need to code a cabin server</p>
+</li>
+<li>
+<p>This cabin server code must be some kind of http server</p>
+</li>
+<li>
+<p>It needs to listen to a few dedicated url</p>
+</li>
+<li>
+<p>To get started, you need to register the cabin server by hand on a dedicated web page served by the building server.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="events">Events</h3>
+<div class="paragraph">
+<p>The starting position of the cabin is at the lowest floor, doors closed, and no user is in the building or the cabin, yet.</p>
+</div>
+<div class="paragraph">
+<p>Here&#8217;s the list of http requests your cabin server needs to listen to. All the calls are made with a http <code>GET</code> verb.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>/call?atFloor=[0-5]</code> means someone is waiting at floor <code>atFloor</code> to get into the cabin</p>
+</li>
+<li>
+<p><code>/userHasEntered</code> means someone just entered the cabin</p>
+</li>
+<li>
+<p><code>/go?floorToGo=[0-5]</code> means someone, who just got into the cabin, wants to leave the cabin at floor <code>floorToGo</code></p>
+</li>
+<li>
+<p><code>/userHasExited</code> means someone just exited the cabin.</p>
+</li>
+<li>
+<p><code>/reset</code> is issued to resynchronize the building and cabin states to the starting position. It can occur if the cabin made an impossible move, for instance going below the lowest floor for instance, or moving while the doors are open.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>For the building server to be happy you just need to answer with a <code>200 OK</code> HTTP response.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="nextcommand">nextCommand</h3>
+<div class="paragraph">
+<p>But the cabin needs to take some action, so answering empty text is not going to lead it anywhere.</p>
+</div>
+<div class="paragraph">
+<p>The building server will issue regularly some <code>/nextCommand</code> waiting for a proper answer. The answer you can give back to the building server is one of the following</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>OPEN</code>: you open the doors of the cabin</p>
+</li>
+<li>
+<p><code>CLOSE</code>: you close the doors of the cabin</p>
+</li>
+<li>
+<p><code>UP</code>: you want the cabin to go up one floor</p>
+</li>
+<li>
+<p><code>DOWN</code>: you want the cabin to go down one floor</p>
+</li>
+<li>
+<p><code>NOTHING</code>: the cabin does nothing.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>So when the server wants to know what the cabin is doing, you must answer one of this 5 answers with a <code>200 OK</code> (and a <code>Content-Type: plain/text</code>).</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="enough-talking-let-s-code">Enough Talking, Let&#8217;s Code !</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="pre-requisite">Pre-Requisite</h3>
+<div class="paragraph">
+<p>You must have:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Jdk7+</p>
+</li>
+<li>
+<p>Leiningen 2</p>
+</li>
+<li>
+<p>Git</p>
+</li>
+<li>
+<p>Basic knowledge of http server</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="the-building-server">The Building Server</h3>
+<div class="paragraph">
+<p>The building server can be obtained on Github at <a href="https://github.com/jeanlaurent/code-elevator">https://github.com/jeanlaurent/code-elevator</a></p>
+</div>
+<div class="paragraph">
+<p>You should first get it running just to see how it works:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>git clone https://github.com/jeanlaurent/code-elevator
+./run.sh</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Then open your favorite browser and go to <a href="http://localhost:8080/">http://localhost:8080/</a></p>
+</div>
+<div class="paragraph">
+<p>You can register yourself with a fancy url just to see how it works. Type in your name, some email and let&#8217;s say <a href="http://127.0.0.1:9090/">http://127.0.0.1:9090/</a></p>
+</div>
+<div class="paragraph">
+<p>You can now have a glimpse at the cabin, and the building. The building&#8217;s server at <a href="http://localhost:8080/">http://localhost:8080/</a> tries to connect to a cabin server at <a href="http://localhost:9090/">http://localhost:9090/</a> but finds nothing, and spurs error after error.</p>
+</div>
+<div class="paragraph">
+<p>Notice the points goes down quite a bit. So you should probably unregister.</p>
+</div>
+<div class="paragraph">
+<p>Now we need to start coding.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="simple-server">Simple Server</h3>
+<div class="paragraph">
+<p>In the Clojure world, the first thing you must write is a Clojure file named <code>project.clj</code> like this:</p>
+</div>
+<div class="listingblock">
+<div class="title">project.clj</div>
+<div class="content">
+<pre class="CodeRay"><code class="clojure language-clojure">(defproject elevator <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">0.0.1-SNAPSHOT</span><span style="color:#710">&quot;</span></span>
+  <span style="color:#A60">:dependencies</span> [ [org.clojure/clojure     <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">1.5.1</span><span style="color:#710">&quot;</span></span>]
+                  [compojure               <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">1.1.5</span><span style="color:#710">&quot;</span></span>]      <span style="color:#777">; </span><b>(1)</b>
+                  [ring/ring-jetty-adapter <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">1.2.0</span><span style="color:#710">&quot;</span></span>] ])   <span style="color:#777">; </span><b>(2)</b></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<ol>
+<li>
+<p>Compojure is a library for writing Web applications. It comprises: an HTTP request/response abstraction (based on the Ring library), and features to create &#8220;HTTP Request Routes&#8221; (mapping request URLs to functions which will process the request - the <em>handlers</em> -). A word on Ring: it is a library which abstracts HTTP requests and responses as plain Clojure maps. The possible keys for the request and response maps are formalized in a <a href="https://github.com/ring-clojure/ring/blob/master/SPEC">specifications document</a> and are an integral part of the Ring API. This is a classical trait of Clojure libraries: standardizing on information/data first, and behavior (functions) second.</p>
+</li>
+<li>
+<p>ring-jetty-adapter is an optional module of the Ring HTTP library for easy integration with the Jetty web server library.</p>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="not-loosing-is-winning">Not Loosing Is Winning ?</h3>
+<div class="paragraph">
+<p>To make things simple, first let&#8217;s start by not losing points. You lose points by actually not answering to all calls or answering them with something else than a <code>200 OK</code>. So we should write a server which answers <code>200 OK</code> to any call, regardless of the actual meaning of the call. And we should answer <code>NOTHING</code> to every <code>/nextCommand</code> calls.</p>
+</div>
+<div class="paragraph">
+<p>Let&#8217;s use the Compojure web library which enables us to start quickly writing some interesting code.</p>
+</div>
+<div class="paragraph">
+<p>Let&#8217;s create file <code>main.clj</code> in the <code>src</code> folder:</p>
+</div>
+<div class="listingblock">
+<div class="title">src/main.clj</div>
+<div class="content">
+<pre class="CodeRay"><code class="clojure language-clojure">(<span style="color:#080;font-weight:bold">ns</span> <span style="color:#707;font-weight:bold">main</span>
+  (<span style="color:#A60">:use</span> ring.adapter.jetty
+        compojure.core))
+
+(defroutes app
+  (GET <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">/nextCommand</span><span style="color:#710">&quot;</span></span> [] <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">NOTHING</span><span style="color:#710">&quot;</span></span>)   <b>(1)</b>
+  (GET <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">*</span><span style="color:#710">&quot;</span></span>            [] <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#710">&quot;</span></span>))         <b>(2)</b>
+
+(<span style="color:#080;font-weight:bold">defn</span> <span style="color:#06B;font-weight:bold">-main</span> []
+  (run-jetty app {<span style="color:#A60">:port</span> <span style="color:#00D">9090</span>}))</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<ol>
+<li>
+<p>If the route is <code>/nextCommand</code> answer <code>200 OK</code> (implied) with <code>NOTHING</code> in the payload</p>
+</li>
+<li>
+<p>If the route is something else answer <code>200 OK</code> (implied) with an empty payload</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>Now run the <code>-main</code> function of the <code>main</code> namespace, by invoking Leiningen on the command line:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ lein run -m main
+2013-10-24 23:54:58.424:INFO:oejs.Server:jetty-7.6.8.v20121106
+2013-10-24 23:54:58.511:INFO:oejs.AbstractConnector:Started SelectChannelConnector@0.0.0.0:9090</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Then register again in your building server. You should see that the score now stays at zero. You&#8217;ll notice also that some people are actually calling our cabin, but as every time the building server calls the <code>nextCommand</code> the cabin answers <code>NOTHING</code>, nothing moves, and the people can die waiting for the cabin to come.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="srp">SRP</h3>
+<div class="paragraph">
+<p>But the server code is not going to change much, while the elevator code is. The elevator code is where everything is going to happen. And as you know your SRP principle by heart, <em>“a function has one reason to change, and only one”</em>, We are going to split the responsibilities: the route dispatching, the http-level request handling, and the cabin (logic stuff, http agnostic).</p>
+</div>
+<div class="paragraph">
+<p>In a real Clojure application, we may start to engineer a little bit more, and create a separate namespace for the elevator (logic) stuff. There&#8217;s no real pressure to do so right now, so we&#8217;ll keep things simple and just use one namespace.</p>
+</div>
+<div class="paragraph">
+<p>Change the <code>main.clj</code> file like so:</p>
+</div>
+<div class="listingblock">
+<div class="title">src/main.clj</div>
+<div class="content">
+<pre class="CodeRay"><code class="clojure language-clojure">(<span style="color:#080;font-weight:bold">ns</span> <span style="color:#707;font-weight:bold">main</span>
+  (<span style="color:#A60">:use</span> ring.adapter.jetty
+        compojure.core))
+
+(<span style="color:#080;font-weight:bold">defn</span> <span style="color:#06B;font-weight:bold">next-command</span> [] <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">NOTHING</span><span style="color:#710">&quot;</span></span>)                 <span style="color:#777">; </span><b>(1)</b>
+
+(<span style="color:#080;font-weight:bold">defn</span> <span style="color:#06B;font-weight:bold">next-command-handler</span> [] (next-command))    <span style="color:#777">; </span><b>(2)</b>
+
+(defroutes app
+  (GET <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">/nextCommand</span><span style="color:#710">&quot;</span></span> [] (next-command-handler)) <span style="color:#777">; </span><b>(3)</b>
+  (GET <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">*</span><span style="color:#710">&quot;</span></span>            [] <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#710">&quot;</span></span>))
+
+(<span style="color:#080;font-weight:bold">defn</span> <span style="color:#06B;font-weight:bold">-main</span> []
+  (run-jetty app {<span style="color:#A60">:port</span> <span style="color:#00D">9090</span>}))</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<ol>
+<li>
+<p>The <code>next-command</code> function implements the core logic. Granted, it is quite simple at the moment</p>
+</li>
+<li>
+<p>The <code>next-command-handler</code> function is the interface between the Web World and our web-agnostic algorithm in <code>next-command</code>. Granted, it does not do much at the moment. Be patient ;-)</p>
+</li>
+<li>
+<p>The routes definition directly calls <code>next-command-handler</code>. When time will come to e.g. extract parameters from the Request, this separation of concern will prove more useful.</p>
+</li>
+</ol>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>While we didn&#8217;t really feel any pressure to create 2 levels of indirection (<code>next-command-handler</code>, and then <code>next-command</code>), they have been introduced at once to keep this article shorter. In the real world, an intermediate shape of the code could have been to have <code>next-command-handler</code> directly return &#8220;NOTHING&#8221;, saving the introduction of the <code>next-command</code> function for later.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Clojure code puts a strong emphasis on application state management. The less state, the less moving parts, the better. So for the moment, the algorithm requires absolutely no state, and there&#8217;s indeed no state in the code. Not even yet a kind of &#8220;Cabin instance&#8221;. Just a separation of concerns via the introduction of an indirection level.</p>
+</div>
+<div class="paragraph">
+<p>Stop and restart your server via the Leiningen command line and check that the number of points in the building server web page still doesn&#8217;t change. We have made some baby steps to be ready to code an efficient (<em>cough, cough</em>) algorithm now.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="the-omnibus">The Omnibus</h3>
+<div class="paragraph">
+<p>The Omnibus Elevator algorithm is a very good starter because you only have to take care of the <code>nextCommand</code> call and know the number of floors in the building.</p>
+</div>
+<div class="paragraph">
+<p>By chance we know it&#8217;s a 20 story building (it&#8217;s a little bit more dynamic than that, but at least for the first week, it&#8217;s 20 floors).</p>
+</div>
+<div class="paragraph">
+<p>The Omnibus idea is to go to each floor, open the doors, close them and go to the next floor. We do this up and down, all the time. By doing this, we are pretty sure to get anyone waiting in the cabin, and anyone who may want to leave can since we stop at any floors by going up or down. This is not efficient. But this is a very good first baby step into the problem to learn more on the way.</p>
+</div>
+<div class="paragraph">
+<p>One thing to know, or notice by doing that, is that all the people waiting at a given floor will rush into the cabin as soon as it opens, and all the people inside will rush out at the same time. So you don&#8217;t need to wait for people to get in or out.</p>
+</div>
+<div class="paragraph">
+<p>We should start using the other commands at our disposal, rather than answering <code>NOTHING</code>.</p>
+</div>
+<div class="paragraph">
+<p>At a given floor we should first answer <code>OPEN</code>, then at the next <code>nextCommand</code> call we should answer <code>CLOSE</code>, then move <code>UP</code> or <code>DOWN</code> depending on the current direction of the cabin (ascending or descending phase).</p>
+</div>
+<div class="paragraph">
+<p>So we have to issue 19 times a <code>OPEN</code>, <code>CLOSE</code>, <code>UP</code> commands and then <code>OPEN</code>, <code>CLOSE</code>, <code>DOWN</code>. Rather than keeping records of what floor the cabin currently is at, and writing the conditional logic for issuing an <code>OPEN</code>, <code>CLOSE</code>, <code>UP</code> or <code>DOWN</code> command, we can <strong>predetermine</strong> the full commands by creating an infinite lazing sequence cycling through the alternating 5x3 commands while the elevator is going up then 5x3 commands while the elevator is going down:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay"><code class="clojure language-clojure">(<span style="color:#080;font-weight:bold">defn</span> <span style="color:#06B;font-weight:bold">make-omnibus</span> [nb-floors]
+  (<span style="color:#080;font-weight:bold">let</span> [up   (<span style="color:#080;font-weight:bold">repeat</span> (<span style="color:#080;font-weight:bold">dec</span> nb-floors) [<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">OPEN</span><span style="color:#710">&quot;</span></span>, <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">CLOSE</span><span style="color:#710">&quot;</span></span>, <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">UP</span><span style="color:#710">&quot;</span></span>])     <span style="color:#777">; </span><b>(1)</b>
+        down (<span style="color:#080;font-weight:bold">repeat</span> (<span style="color:#080;font-weight:bold">dec</span> nb-floors) [<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">OPEN</span><span style="color:#710">&quot;</span></span>, <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">CLOSE</span><span style="color:#710">&quot;</span></span>, <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">DOWN</span><span style="color:#710">&quot;</span></span>])
+        up-then-down (flatten (<span style="color:#080;font-weight:bold">concat</span> up down))]                  <span style="color:#777">; </span><b>(2)</b>
+    (<span style="color:#080;font-weight:bold">concat</span> [<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">NOTHING</span><span style="color:#710">&quot;</span></span>] (<span style="color:#080;font-weight:bold">cycle</span> up-then-down))))                   <span style="color:#777">; </span><b>(3)</b></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<ol>
+<li>
+<p><code>dec</code> is the decrement function: <code>(dec 2)</code> returns <code>1</code> (see <a href="http://clojuredocs.org/clojure_core/clojure.core/dec">ClojureDocs</a> or <a href="http://clojure.github.io/clojure/clojure.core-api.html#clojure.core/dec">Reference Doc</a>). <code>(repeat n a-sequence)</code> produces a sequence repeating <code>a-sequence</code> <code>n</code> times: <code>(repeat 3 ["O", "P"])</code> returns <code>(["O", "P"], ["O", "P"], ["O", "P"])</code> (see <a href="http://clojuredocs.org/clojure_core/clojure.core/repeat">ClojureDocs</a> or <a href="http://clojure.github.io/clojure/clojure.core-api.html#clojure.core/repeat">Reference Doc</a>)</p>
+</li>
+<li>
+<p><code>concat</code> concatenates its sequence arguments: <code>(concat [1 2] [3 4])</code> returns <code>(1 2 3 4)</code> (see <a href="http://clojuredocs.org/clojure_core/clojure.core/concat">ClojureDocs</a> or <a href="http://clojure.github.io/clojure/clojure.core-api.html#clojure.core/concat">Reference Doc</a>). <code>flatten</code> transforms nested sequences into a flat sequence: <code>(flatten [ [1 2] [3 4] ])</code> returns <code>(1 2 3 4)</code> (see <a href="http://clojuredocs.org/clojure_core/clojure.core/flatten">ClojureDocs</a> or <a href="http://clojure.github.io/clojure/clojure.core-api.html#clojure.core/flatten">Reference doc</a>)</p>
+</li>
+<li>
+<p><code>cycle</code> creates an infinite sequence as if concatenating its sequence argument to itself, again and again and again: <code>(cycle [1, 2, 3, 2])</code> returns <code>(1 2 3 2 1 2 3 2 1 ...)</code> (see <a href="http://clojuredocs.org/clojure_core/clojure.core/cycle">ClojureDocs</a> or <a href="http://clojure.github.io/clojure/clojure.core-api.html#clojure.core/cycle">Reference Doc</a>). You may have noted that the input types are of the type <code>[ xx, yy ]</code> while the output types are of the type <code>( xx, yy )</code>. <code>[1 2]</code> is a vector, a datastructure. <code>(1 2)</code> is a seq(uence). <code>repeat</code>, <code>concat</code> and <code>cycle</code> return lazy seqs: their elements aren&#8217;t all computed yet ; they are computed just in time, when their are traversed.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>The function <code>make-omnibus</code> returns a lazy-sequence whose shape depends on the number of floors. For 2 floors, it would return <code>("NOTHING", "OPEN", "CLOSE", "UP", "OPEN", "CLOSE", "DOWN", "OPEN", "CLOSE", "UP", "OPEN", "CLOSE", "DOWN", "OPEN" .....)</code>.</p>
+</div>
+<div class="paragraph">
+<p>For the Omnibus algorithm, we need to store the state of the elevator cabin.<br>
+Clojure promotes strict separation of concepts of identity, state and value. In a nutshell, it means we will use pure functions at the core of our algorithm, and manage state change at the boundaries of the program. Request handlers will be responsible for managing the state of the elevator cabin (get the previous state, store the new state. The hard work will be delegated to pure functions).</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The <code>nextCommand</code> event is interesting. It acts both as an event indicating that the elevator should compute its next command, and it also acts as a getter to query the new state. As you may have learned from good principles from Object Orientation, it&#8217;s generally not a good idea to have a getter that also changes the internal state of the object.<br>
+The same applies to Clojure.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>In the Omnibus algorithm, the state is an infinite list of pre-determined commands to issue. To compute the next state, we just remove one element from the list and make this the new state.</p>
+</div>
+<div class="paragraph">
+<p>We cannot change the external API of our cabin, it is dictated by the rules of the contest. But we can avoid to propagate this design decision to the core of our algorithm. So we&#8217;ll deal with a coumpound <code>nextCommand</code> at the request handler level: we&#8217;ll split the <code>nextCommand</code> into a <code>tick</code> state-altering Event and a <code>next-command</code> state-preserving/idempotent Getter.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay"><code class="clojure language-clojure">(<span style="color:#080;font-weight:bold">defn</span> <span style="color:#06B;font-weight:bold">tick</span> [elevator] (<span style="color:#080;font-weight:bold">rest</span> elevator))           <span style="color:#777">; </span><b>(2)</b>
+(<span style="color:#080;font-weight:bold">defn</span> <span style="color:#06B;font-weight:bold">next-command</span> [elevator] (<span style="color:#080;font-weight:bold">first</span> elevator))  <span style="color:#777">; </span><b>(3)</b>
+
+(<span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">nb-floors</span> <span style="color:#00D">20</span>)
+(<span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">cabin</span> (<span style="color:#080;font-weight:bold">atom</span> (make-omnibus nb-floors)))      <span style="color:#777">; </span><b>(1)</b>
+(<span style="color:#080;font-weight:bold">defn</span> <span style="color:#06B;font-weight:bold">next-command-handler</span> []                    <span style="color:#777">; </span><b>(4)</b>
+  (<span style="color:#080;font-weight:bold">let</span> [new-state (<span style="color:#080;font-weight:bold">swap!</span> cabin tick)]
+    (next-command new-state)))
+
+(defroutes app
+  (GET <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">/nextCommand</span><span style="color:#710">&quot;</span></span> [] (next-command-handler)) <span style="color:#777">; </span><b>(5)</b>
+  <span style="color:#080;font-weight:bold">..</span><span style="color:#080;font-weight:bold">.</span>)</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<ol>
+<li>
+<p>The <code>cabin</code> is the piece of state of the application. Here we just encapsulate the state in an atom. An atom is one of the simplest state referencing types of Clojure: an atom holds a value, and has clearly established synchronous functions that can be applied to it to change the value it contains. Underneath, it really is a java.util.concurrent.Atom instance (see <a href="http://clojuredocs.org/clojure_core/clojure.core/atom">ClojureDocs</a> or <a href="http://clojure.github.io/clojure/clojure.core-api.html#clojure.core/atom">Reference Doc</a>).</p>
+</li>
+<li>
+<p>The <code>tick</code> function removes the head of the list and returns the new list. The effect is that the state rotates the list of one element.</p>
+</li>
+<li>
+<p>The <code>next-command</code> just returns the head of the list. Note that it&#8217;s an idempotent function. It does not change the state of the cabin.</p>
+</li>
+<li>
+<p>The <code>next-command-handler</code> modifies the cabin state: <code>swap!</code> calls the <code>tick</code> function to the current state value, and the state becomes the result of the call to <code>tick</code> (see <a href="http://clojuredocs.org/clojure_core/clojure.core/swap!">ClojureDocs</a> or <a href="http://clojure.github.io/clojure/clojure.core-api.html#clojure.core/swap!">Reference Doc</a>). Then <code>next-command</code> is called on the new state.</p>
+</li>
+<li>
+<p>Note that we changed the name of the handler for the <code>/nextCommand</code> route from <code>next-command</code> to <code>next-command-handler</code></p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>Now stop and start the server again, via Leiningen. You should see your elevator going up and down, starting to get people on board.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="final-code">Final code</h3>
+<div class="paragraph">
+<p>Since there is still so little code for the Omnibus implementation, please find it all below:</p>
+</div>
+<div class="listingblock">
+<div class="title">project.clj</div>
+<div class="content">
+<pre class="CodeRay"><code class="clojure language-clojure">(defproject elevator <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">0.0.1-SNAPSHOT</span><span style="color:#710">&quot;</span></span>
+  <span style="color:#A60">:dependencies</span> [ [org.clojure/clojure     <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">1.5.1</span><span style="color:#710">&quot;</span></span>]
+                  [compojure               <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">1.1.5</span><span style="color:#710">&quot;</span></span>]
+                  [ring/ring-jetty-adapter <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">1.2.0</span><span style="color:#710">&quot;</span></span>] ])</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">src/main.clj</div>
+<div class="content">
+<pre class="CodeRay"><code class="clojure language-clojure">(<span style="color:#080;font-weight:bold">ns</span> <span style="color:#707;font-weight:bold">main</span>
+  (<span style="color:#A60">:use</span> ring.adapter.jetty
+        compojure.core))
+
+(<span style="color:#080;font-weight:bold">defn</span> <span style="color:#06B;font-weight:bold">make-omnibus</span> [nb-floors]
+  (<span style="color:#080;font-weight:bold">let</span> [up   (<span style="color:#080;font-weight:bold">repeat</span> (<span style="color:#080;font-weight:bold">dec</span> nb-floors) [<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">OPEN</span><span style="color:#710">&quot;</span></span>, <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">CLOSE</span><span style="color:#710">&quot;</span></span>, <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">UP</span><span style="color:#710">&quot;</span></span>])
+        down (<span style="color:#080;font-weight:bold">repeat</span> (<span style="color:#080;font-weight:bold">dec</span> nb-floors) [<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">OPEN</span><span style="color:#710">&quot;</span></span>, <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">CLOSE</span><span style="color:#710">&quot;</span></span>, <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">DOWN</span><span style="color:#710">&quot;</span></span>])
+        up-then-down (flatten (<span style="color:#080;font-weight:bold">concat</span> up down))]
+    (<span style="color:#080;font-weight:bold">concat</span> [<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">NOTHING</span><span style="color:#710">&quot;</span></span>] (<span style="color:#080;font-weight:bold">cycle</span> up-then-down))))
+
+(<span style="color:#080;font-weight:bold">defn</span> <span style="color:#06B;font-weight:bold">tick</span> [elevator] (<span style="color:#080;font-weight:bold">rest</span> elevator))
+(<span style="color:#080;font-weight:bold">defn</span> <span style="color:#06B;font-weight:bold">next-command</span> [elevator] (<span style="color:#080;font-weight:bold">first</span> elevator))
+
+(<span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">nb-floors</span> <span style="color:#00D">20</span>)
+(<span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">cabin</span> (<span style="color:#080;font-weight:bold">atom</span> (make-omnibus nb-floors)))
+(<span style="color:#080;font-weight:bold">defn</span> <span style="color:#06B;font-weight:bold">next-command-handler</span> []
+  (<span style="color:#080;font-weight:bold">let</span> [new-state (<span style="color:#080;font-weight:bold">swap!</span> cabin tick)]
+    (next-command new-state)))
+
+(defroutes app
+  (GET <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">/nextCommand</span><span style="color:#710">&quot;</span></span> [] (next-command-handler))
+  (GET <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">*</span><span style="color:#710">&quot;</span></span>            [] <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#710">&quot;</span></span>))
+
+(<span style="color:#080;font-weight:bold">defn</span> <span style="color:#06B;font-weight:bold">-main</span> []
+  (run-jetty app {<span style="color:#A60">:port</span> <span style="color:#00D">9090</span>}))</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Laurent Petit</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>To keep this post short and friendly for people new to Clojure, I&#8217;ve intentionally made some choices in what is presented. For instance, I&#8217;m not talking about interactive development at all. I&#8217;m also using the short <code>(:use)</code> directive in the namespace declaration instead of <code>(:require)</code>.<br>
+I&#8217;ve also made the choice in this first version to explain how to start the project from the command line. I intend to adapt it to Counterclockwise + Eclipse, especially to make it easier for Windows people to start.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+</div>]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Code Story, Clojure et moi]]></title>
@@ -34,7 +523,7 @@
 
 <p>Pour participer à l&#8217;épreuve, il fallait mettre en place un serveur Web. <strong>Toutes les questions, y compris les énoncés, ont été envoyées par HTTP GET ou POST.</strong></p>
 
-<p><a href="https://github.com/ring-clojure/ring">Ring</a> est la librairie standard Clojure pour écrire des applications Web. C&#8217;est une abstraction &#8220;minimaliste&#8221; (mais pas simpliste !) d&#8217;un serveur web.</p>
+<p><a href="https://github.com/ring-clojure/ring">Ring</a> est la librairie standard Clojure pour écrire des applications Web. C&#8217;est une abstraction &ldquo;minimaliste&rdquo; (mais pas simpliste !) d&#8217;un serveur web.</p>
 
 <blockquote><p>Clojure+Ring pour faire une appli Web : c&#8217;est simple, lisible, concis</p></blockquote>
 
@@ -55,7 +544,7 @@
 
 <ul>
 <li><strong>Facilite l&#8217;écriture des tests</strong> : les tests sont concis, lisibles, faciles à refactorer.</li>
-<li><strong>Facilite l&#8217;écriture du code</strong> : écrire du nouveau code en Clojure est une danse entre l&#8217;éditeur et l&#8217;environnement dynamique d&#8217;exécution. Tout nouveau code est façonné / testé dans l&#8217;environnement d&#8217;exécution. Imaginez le remplacement à chaud du mode Debug de votre IDE, <em>&#8220;on steroïds&#8221;</em>.</li>
+<li><strong>Facilite l&#8217;écriture du code</strong> : écrire du nouveau code en Clojure est une danse entre l&#8217;éditeur et l&#8217;environnement dynamique d&#8217;exécution. Tout nouveau code est façonné / testé dans l&#8217;environnement d&#8217;exécution. Imaginez le remplacement à chaud du mode Debug de votre IDE, <em>&ldquo;on steroïds&rdquo;</em>.</li>
 <li><strong>Favorise le refactoring</strong> : le code Clojure est généralement très concis. Souvent 3 à 10 fois plus concis que son équivalent Java, par exemple. La masse de code à modifier fait moins peur. De plus, l&#8217;unité de réutilisation de code étant la fonction, et non la classe, le code est naturellement plus facile à refactorer.</li>
 </ul>
 
@@ -64,11 +553,11 @@
 
 <h1>Performances</h1>
 
-<p>Le dernier exercice du concours a soumis nos méninges à rude épreuve. Il ne suffisait pas d&#8217;avoir un code qui fonctionne, il fallait trouver un code &#8220;performant&#8221;.</p>
+<p>Le dernier exercice du concours a soumis nos méninges à rude épreuve. Il ne suffisait pas d&#8217;avoir un code qui fonctionne, il fallait trouver un code &ldquo;performant&rdquo;.</p>
 
-<p>Mais pas <em>&#8220;Performant&#8221;</em> comme dans &#8220;comment gagner quelques microsecondes dans l&#8217;exécution d&#8217;une requête portant sur quelques éléments à traiter&#8221;. NON. <em>&#8220;Performant&#8221;</em> comme dans &#8220;écrire un algorithme pouvant traiter une requête portant sur plusieurs centaines de milliers, ou des millions, d&#8217;éléments&#8221;.</p>
+<p>Mais pas <em>&ldquo;Performant&rdquo;</em> comme dans &ldquo;comment gagner quelques microsecondes dans l&#8217;exécution d&#8217;une requête portant sur quelques éléments à traiter&rdquo;. NON. <em>&ldquo;Performant&rdquo;</em> comme dans &ldquo;écrire un algorithme pouvant traiter une requête portant sur plusieurs centaines de milliers, ou des millions, d&#8217;éléments&rdquo;.</p>
 
-<p>Pour cette épreuve, écrire un algorithme récursif &#8220;naïf&#8221;, puis tenter des optimisations locales dessus, c&#8217;était un peu comme être sur le Titanic pendant le naufrage, à s&#8217;acharner à graisser les portes de la salle de réception. Ça occupe, mais ça ne sert à rien. Au-delà de 100 entrées, un algo &#8220;naïf&#8221; prenait déjà plusieurs dizaines de secondes. <strong>Pour CodeStory, il fallait être capable de traiter des requêtes de 50.000 éléments ou plus</strong> ! On attend toujours que les algorithmes récursifs aient fini de répondre &#8230; (<a href="https://twitter.com/CodeStory/status/297268190566813696">pauvres chatons</a>)</p>
+<p>Pour cette épreuve, écrire un algorithme récursif &ldquo;naïf&rdquo;, puis tenter des optimisations locales dessus, c&#8217;était un peu comme être sur le Titanic pendant le naufrage, à s&#8217;acharner à graisser les portes de la salle de réception. Ça occupe, mais ça ne sert à rien. Au-delà de 100 entrées, un algo &ldquo;naïf&rdquo; prenait déjà plusieurs dizaines de secondes. <strong>Pour CodeStory, il fallait être capable de traiter des requêtes de 50.000 éléments ou plus</strong> ! On attend toujours que les algorithmes récursifs aient fini de répondre &hellip; (<a href="https://twitter.com/CodeStory/status/297268190566813696">pauvres chatons</a>)</p>
 
 <blockquote><p>Pour être honnête, sur ce genre de problème, le langage de programmation importe peu</p></blockquote>
 
@@ -80,13 +569,13 @@ Un algorithme de complexité algorithmique quasi linéaire (dont le temps de ré
 <ul>
 <li><strong>Facilité de prototypage</strong> : la librairie de base de Clojure est riche en fonctions de manipulation de collections. Les sort, group-by, max-key, etc. y sont presque toutes !</li>
 <li><strong>Facilité de refactoring</strong> : le code produit restant concis, il est facile de le refactorer, d&#8217;en produire une version différente. Le fait de manipuler des fonctions plutôt que des classes est un accélérateur de ce phénomène.</li>
-<li><strong>Code performant</strong> : à algorithme identique, il reste important que le langage utilisé ne soit pas extrêmement plus lent que les langages &#8220;concurrents&#8221;. En utilisant du Clojure &#8220;idiomatique&#8221;, sans chercher à optimiser, sans compromettre la lisibilité (sous réserve de connaître Clojure et les fonctions standards utilisées, oeuf de course), le code produit s&#8217;est avéré du même ordre de grandeur que les solutions concurrentes. En moyenne seulement 2, parfois 3 fois moins rapide. Il serait possible d&#8217;optimiser pour aller &#8220;talonner&#8221; les langages impératifs (utilisation de tableaux, par ex.), mais c&#8217;était juste non requis, donc non nécessaire.</li>
+<li><strong>Code performant</strong> : à algorithme identique, il reste important que le langage utilisé ne soit pas extrêmement plus lent que les langages &ldquo;concurrents&rdquo;. En utilisant du Clojure &ldquo;idiomatique&rdquo;, sans chercher à optimiser, sans compromettre la lisibilité (sous réserve de connaître Clojure et les fonctions standards utilisées, oeuf de course), le code produit s&#8217;est avéré du même ordre de grandeur que les solutions concurrentes. En moyenne seulement 2, parfois 3 fois moins rapide. Il serait possible d&#8217;optimiser pour aller &ldquo;talonner&rdquo; les langages impératifs (utilisation de tableaux, par ex.), mais c&#8217;était juste non requis, donc non nécessaire.</li>
 </ul>
 
 
 <h1>C&#8217;est tout pour aujourd&#8217;hui</h1>
 
-<p>Si ce premier article vous a mis l&#8217;eau à la bouche, et que vous souhaitez que je continue la série avec des articles techniques et du code, envoyez-moi un petit mot d&#8217;encouragement :-).</p>
+<p>Si ce premier article vous a mis l&#8217;eau à la bouche, et que vous souhaitez que je continue la série avec des articles techniques et du code, envoyez-moi un petit mot d&#8217;encouragement :&ndash;).</p>
 
 <p>Merci de m&#8217;avoir lu.</p>
 ]]></content>

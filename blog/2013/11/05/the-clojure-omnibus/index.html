@@ -9,8 +9,8 @@
   <meta name="author" content="Laurent Petit">
 
   
-  <meta name="description" content="This post is a port of the blog post The Java Omnibus to the Clojure language.
-It targets developers beginning or with some notions of Clojure, who &hellip;">
+  <meta name="description" content="The Clojure Omnibus Nov 5th, 2013 This post is a port of the blog post The Java Omnibus to the Clojure language.
+It targets developers beginning or &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -75,15 +75,11 @@ It targets developers beginning or with some notions of Clojure, who &hellip;">
   <div id="main">
     <div id="content">
       <div>
-<article class="hentry" role="article">
+<article role="article">
   
   <header>
-    
-      <h1 class="entry-title">The Clojure Omnibus</h1>
-    
-    
-      <p class="meta">
-        
+    <h1 class="entry-title">The Clojure Omnibus</h1>
+    <p class="meta">
 
 
 
@@ -95,17 +91,10 @@ It targets developers beginning or with some notions of Clojure, who &hellip;">
   
 
 
-<time datetime="2013-11-05T00:00:00+01:00" pubdate data-updated="true">Nov 5<span>th</span>, 2013</time>
-        
-           | <a href="#disqus_thread"
-             data-disqus-identifier="http://laurentpetit.github.com">Comments</a>
-        
-      </p>
-    
+<time datetime="2013-11-05T00:00:00+01:00" pubdate data-updated="true">Nov 5<span>th</span>, 2013</time></p>
   </header>
-
-
-<div class="entry-content"><div class="paragraph">
+  
+  <div class="paragraph">
 <p>This post is a port of the blog post <a href="http://www.code-story.net/blog/posts/s03e01.3">The Java Omnibus</a> to the <a href="http://www.clojure.org">Clojure</a> language.<br>
 It targets developers beginning or with some notions of Clojure, who want to quickly get up to speed with the episode&#8217;s algorithm challenge.</p>
 </div>
@@ -262,7 +251,20 @@ It targets developers beginning or with some notions of Clojure, who want to qui
 <p>You can register yourself with a fancy url just to see how it works. Type in your name, some email and let&#8217;s say <a href="http://127.0.0.1:9090/">http://127.0.0.1:9090/</a></p>
 </div>
 <div class="paragraph">
+<p>It should look like this:</p>
+</div>
+<div class="imageblock" style="text-align: center">
+<div class="content">
+<img src="/images/the-clojure-omnibus/register.png" alt="register">
+</div>
+</div>
+<div class="paragraph">
 <p>You can now have a glimpse at the cabin, and the building. The building&#8217;s server at <a href="http://localhost:8080/">http://localhost:8080/</a> tries to connect to a cabin server at <a href="http://localhost:9090/">http://localhost:9090/</a> but finds nothing, and spurs error after error.</p>
+</div>
+<div class="imageblock" style="text-align: center">
+<div class="content">
+<img src="/images/the-clojure-omnibus/fail.png" alt="fail">
+</div>
 </div>
 <div class="paragraph">
 <p>Notice the points goes down quite a bit. So you should probably unregister.</p>
@@ -344,6 +346,11 @@ It targets developers beginning or with some notions of Clojure, who want to qui
 </div>
 <div class="paragraph">
 <p>Then register again in your building server. You should see that the score now stays at zero. You&#8217;ll notice also that some people are actually calling our cabin, but as every time the building server calls the <code>nextCommand</code> the cabin answers <code>NOTHING</code>, nothing moves, and the people can die waiting for the cabin to come.</p>
+</div>
+<div class="imageblock" style="text-align: center">
+<div class="content">
+<img src="/images/the-clojure-omnibus/nothing.png" alt="nothing">
+</div>
 </div>
 </div>
 <div class="sect2">
@@ -521,6 +528,11 @@ The same applies to Clojure.</p>
 <div class="paragraph">
 <p>Now stop and start the server again, via Leiningen. You should see your elevator going up and down, starting to get people on board.</p>
 </div>
+<div class="imageblock" style="text-align: center">
+<div class="content">
+<img src="/images/the-clojure-omnibus/omnibus.png" alt="omnibus">
+</div>
+</div>
 </div>
 <div class="sect2">
 <h3 id="final-code">Final code</h3>
@@ -586,17 +598,12 @@ I&#8217;ve also made the choice in this first version to explain how to start th
 </div>
 </div>
 </div>
-</div></div>
-
-
-  <footer>
-    <p class="meta">
-      
+</div>
   
-
-<span class="byline author vcard">Posted by <span class="fn">Laurent Petit</span></span>
-
-      
+    <footer>
+      <p class="meta">
+        
+        
 
 
 
@@ -609,12 +616,18 @@ I&#8217;ve also made the choice in this first version to explain how to start th
 
 
 <time datetime="2013-11-05T00:00:00+01:00" pubdate data-updated="true">Nov 5<span>th</span>, 2013</time>
+        
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/clojure/'>Clojure</a>, <a class='category' href='/blog/categories/codestory/'>CodeStory</a>
+  
+</span>
+
+
+      </p>
       
-
-
-    </p>
-    
-      <div class="sharing">
+        <div class="sharing">
   
   <a href="//twitter.com/share" class="twitter-share-button" data-url="http://laurentpetit.github.com/blog/2013/11/05/the-clojure-omnibus/" data-via="petitlaurent" data-counturl="http://laurentpetit.github.com/blog/2013/11/05/the-clojure-omnibus/" >Tweet</a>
   
@@ -622,15 +635,16 @@ I&#8217;ve also made the choice in this first version to explain how to start th
   
 </div>
 
-    
-    <p class="meta">
       
-        <a class="basic-alignment left" href="/blog/2013/02/04/code-story/" title="Previous Post: Code Story, Clojure et moi">&laquo; Code Story, Clojure et moi</a>
-      
-      
-    </p>
-  </footer>
+    </footer>
+  
 </article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
 
 </div>
 
@@ -682,7 +696,10 @@ I&#8217;ve also made the choice in this first version to explain how to start th
       var disqus_shortname = 'laurentpetit';
       
         
-        var disqus_script = 'count.js';
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://laurentpetit.github.com/blog/2013/11/05/the-clojure-omnibus/';
+        var disqus_url = 'http://laurentpetit.github.com/blog/2013/11/05/the-clojure-omnibus/';
+        var disqus_script = 'embed.js';
       
     (function () {
       var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;

@@ -1,0 +1,441 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: CodeStory | Laurent Petit]]></title>
+  <link href="http://laurentpetit.github.com/blog/categories/codestory/atom.xml" rel="self"/>
+  <link href="http://laurentpetit.github.com/"/>
+  <updated>2013-11-07T13:57:06+01:00</updated>
+  <id>http://laurentpetit.github.com/</id>
+  <author>
+    <name><![CDATA[Laurent Petit]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[The Clojure Omnibus]]></title>
+    <link href="http://laurentpetit.github.com/blog/2013/11/05/the-clojure-omnibus/"/>
+    <updated>2013-11-05T00:00:00+01:00</updated>
+    <id>http://laurentpetit.github.com/blog/2013/11/05/the-clojure-omnibus</id>
+    <content type="html"><![CDATA[<p>This post is a port of the blog post <a href="http://www.code-story.net/blog/posts/s03e01.3">http://www.code-story.net/blog/posts/s03e01.3</a>[The Java Omnibus] to the <a href="http://www.clojure.org">http://www.clojure.org</a>[Clojure] language. +
+It targets developers beginning or with some notions of Clojure, who want to quickly get up to speed with the episode&rsquo;s algorithm challenge.</p>
+
+<p>== The Tale Of Two Servers</p>
+
+<p>The goal of Code-Story <a href="http://www.code-story.net/blog/posts/s03e01.1">http://www.code-story.net/blog/posts/s03e01.1</a>[episode S03E01] is to code the algorithm that moves an elevator&rsquo;s <code>cabin</code> within a <code>building</code>.</p>
+
+<p>There are two systems, the <code>building</code>, and the <code>cabin</code>. Two pieces of software, one for each. The Code-Story Team provides the <code>building</code> server and we (the competitors) write the <code>cabin</code> server.</p>
+
+<p>The Code-Story team provides a building server, which patiently waits for cabin server registrations. You manually register your cabin server through a dedicated web page: by giving its ip and port. Then the building server starts calling your cabin server periodically.</p>
+
+<p>When the building server calls your cabin server, it describes what&rsquo;s happening. In this simulation, there is a limited set of events. People in the building can call the cabin from their floor. They can enter. Once inside the cabin they state at which floor they want to leave. Once the cabin is at the right floor they exit when it opens its doors.</p>
+
+<p>That&rsquo;s all.</p>
+
+<p>The building server is going to call the cabin server through repeated http calls. For instance when someone enters the cabin, the building server calls the <code>/userHasEntered</code> url on the cabin server. When a user calls the elevator, the building server is going to call the <code>/call</code> url passing in query parameters the floor at which the call was made.</p>
+
+<p>=== The Short Version</p>
+
+<ul>
+<li>The Code-Story team will provide a server for the building</li>
+<li>You need to code a cabin server</li>
+<li>This cabin server code must be some kind of http server</li>
+<li>It needs to listen to a few dedicated url</li>
+<li>To get started, you need to register the cabin server by hand on a dedicated web page served by the building server.</li>
+</ul>
+
+
+<p>=== Events</p>
+
+<p>The starting position of the cabin is at the lowest floor, doors closed, and no user is in the building or the cabin, yet.</p>
+
+<p>Here&rsquo;s the list of http requests your cabin server needs to listen to. All the calls are made with a http <code>GET</code> verb.</p>
+
+<ul>
+<li><code>/call?atFloor=[0-5]</code> means someone is waiting at floor <code>atFloor</code> to get into the cabin</li>
+<li><code>/userHasEntered</code> means someone just entered the cabin</li>
+<li><code>/go?floorToGo=[0-5]</code> means someone, who just got into the cabin, wants to leave the cabin at floor <code>floorToGo</code></li>
+<li><code>/userHasExited</code> means someone just exited the cabin.</li>
+<li><code>/reset</code> is issued to resynchronize the building and cabin states to the starting position. It can occur if the cabin made an impossible move, for instance going below the lowest floor for instance, or moving while the doors are open.</li>
+</ul>
+
+
+<p>For the building server to be happy you just need to answer with a <code>200 OK</code> HTTP response.</p>
+
+<p>=== nextCommand</p>
+
+<p>But the cabin needs to take some action, so answering empty text is not going to lead it anywhere.</p>
+
+<p>The building server will issue regularly some <code>/nextCommand</code> waiting for a proper answer. The answer you can give back to the building server is one of the following</p>
+
+<ul>
+<li><code>OPEN</code>: you open the doors of the cabin</li>
+<li><code>CLOSE</code>: you close the doors of the cabin</li>
+<li><code>UP</code>: you want the cabin to go up one floor</li>
+<li><code>DOWN</code>: you want the cabin to go down one floor</li>
+<li><code>NOTHING</code>: the cabin does nothing.</li>
+</ul>
+
+
+<p>So when the server wants to know what the cabin is doing, you must answer one of this 5 answers with a <code>200 OK</code> (and a <code>Content-Type: plain/text</code>).</p>
+
+<p>== Enough Talking, Let&rsquo;s Code !</p>
+
+<p>=== Pre-Requisite</p>
+
+<p>You must have:</p>
+
+<ul>
+<li>Jdk7+</li>
+<li>Leiningen 2</li>
+<li>Git</li>
+<li>Basic knowledge of http server</li>
+</ul>
+
+
+<p>=== The Building Server</p>
+
+<p>The building server can be obtained on Github at <a href="https://github.com/jeanlaurent/code-elevator">https://github.com/jeanlaurent/code-elevator</a></p>
+
+<p>You should first get it running just to see how it works:</p>
+
+<p>  git clone <a href="https://github.com/jeanlaurent/code-elevator">https://github.com/jeanlaurent/code-elevator</a>
+  ./run.sh</p>
+
+<p>Then open your favorite browser and go to <a href="http://localhost:8080/">http://localhost:8080/</a></p>
+
+<p>You can register yourself with a fancy url just to see how it works. Type in your name, some email and let&rsquo;s say <a href="http://127.0.0.1:9090/">http://127.0.0.1:9090/</a></p>
+
+<p>It should look like this:</p>
+
+<p>image::the-clojure-omnibus/register.png[align=&ldquo;center&rdquo;]</p>
+
+<p>You can now have a glimpse at the cabin, and the building. The building&rsquo;s server at <a href="http://localhost:8080/">http://localhost:8080/</a> tries to connect to a cabin server at <a href="http://localhost:9090/">http://localhost:9090/</a> but finds nothing, and spurs error after error.</p>
+
+<p>image::the-clojure-omnibus/fail.png[align=&ldquo;center&rdquo;]</p>
+
+<p>Notice the points goes down quite a bit. So you should probably unregister.</p>
+
+<p>Now we need to start coding.</p>
+
+<p>=== Simple Server</p>
+
+<p>In the Clojure world, the first thing you must write is a Clojure file named <code>project.clj</code> like this:</p>
+
+<p>.project.clj</p>
+
+<h2>[source,clojure]</h2>
+
+<p>(defproject elevator &ldquo;0.0.1-SNAPSHOT&rdquo;
+  :dependencies [ [org.clojure/clojure     &ldquo;1.5.1&rdquo;]</p>
+
+<pre><code>              [compojure               "1.1.5"]      ; &lt;1&gt;
+              [ring/ring-jetty-adapter "1.2.0"] ])   ; &lt;2&gt;
+</code></pre>
+
+<hr />
+
+<p><1> Compojure is a library for writing Web applications. It comprises: an HTTP request/response abstraction (based on the Ring library), and features to create &ldquo;HTTP Request Routes&rdquo; (mapping request URLs to functions which will process the request &ndash; the &lsquo;handlers&rsquo; &ndash;). A word on Ring: it is a library which abstracts HTTP requests and responses as plain Clojure maps. The possible keys for the request and response maps are formalized in a <a href="https://github.com/ring-clojure/ring/blob/master/SPEC">https://github.com/ring-clojure/ring/blob/master/SPEC</a>[specifications document] and are an integral part of the Ring API. This is a classical trait of Clojure libraries: standardizing on information/data first, and behavior (functions) second.
+<2> ring-jetty-adapter is an optional module of the Ring HTTP library for easy integration with the Jetty web server library.</p>
+
+<p>=== Not Loosing Is Winning ?</p>
+
+<p>To make things simple, first let&rsquo;s start by not losing points. You lose points by actually not answering to all calls or answering them with something else than a <code>200 OK</code>. So we should write a server which answers <code>200 OK</code> to any call, regardless of the actual meaning of the call. And we should answer <code>NOTHING</code> to every <code>/nextCommand</code> calls.</p>
+
+<p>Let&rsquo;s use the Compojure web library which enables us to start quickly writing some interesting code.</p>
+
+<p>Let&rsquo;s create file <code>main.clj</code> in the <code>src</code> folder:</p>
+
+<p>.src/main.clj</p>
+
+<h2>[source,clojure]</h2>
+
+<p>(ns main
+  (:use ring.adapter.jetty</p>
+
+<pre><code>    compojure.core))
+</code></pre>
+
+<p>(defroutes app
+  (GET &ldquo;/nextCommand&rdquo; [] &ldquo;NOTHING&rdquo;)   <1>
+  (GET &ldquo;*&rdquo;            [] &ldquo;&rdquo;))         <2></p>
+
+<p>(defn -main []</p>
+
+<h2>  (run-jetty app {:port 9090}))</h2>
+
+<p><1> If the route is <code>/nextCommand</code> answer <code>200 OK</code> (implied) with <code>NOTHING</code> in the payload
+<2> If the route is something else answer <code>200 OK</code> (implied) with an empty payload</p>
+
+<p>Now run the <code>-main</code> function of the <code>main</code> namespace, by invoking Leiningen on the command line:</p>
+
+<p>  $ lein run -m main
+  2013-10-24 23:54:58.424:INFO:oejs.Server:jetty-7.6.8.v20121106
+  2013-10-24 23:54:58.511:INFO:oejs.AbstractConnector:Started SelectChannelConnector@0.0.0.0:9090</p>
+
+<p>Then register again in your building server. You should see that the score now stays at zero. You&rsquo;ll notice also that some people are actually calling our cabin, but as every time the building server calls the <code>nextCommand</code> the cabin answers <code>NOTHING</code>, nothing moves, and the people can die waiting for the cabin to come.</p>
+
+<p>image::the-clojure-omnibus/nothing.png[align=&ldquo;center&rdquo;]</p>
+
+<p>=== SRP</p>
+
+<p>But the server code is not going to change much, while the elevator code is. The elevator code is where everything is going to happen. And as you know your SRP principle by heart, <em>“a function has one reason to change, and only one”</em>, We are going to split the responsibilities: the route dispatching, the http-level request handling, and the cabin (logic stuff, http agnostic).</p>
+
+<p>In a real Clojure application, we may start to engineer a little bit more, and create a separate namespace for the elevator (logic) stuff. There&rsquo;s no real pressure to do so right now, so we&rsquo;ll keep things simple and just use one namespace.</p>
+
+<p>Change the <code>main.clj</code> file like so:</p>
+
+<p>.src/main.clj</p>
+
+<h2>[source,clojure]</h2>
+
+<p>(ns main
+  (:use ring.adapter.jetty</p>
+
+<pre><code>    compojure.core))
+</code></pre>
+
+<p>(defn next-command [] &ldquo;NOTHING&rdquo;)                 ; <1></p>
+
+<p>(defn next-command-handler [] (next-command))    ; <2></p>
+
+<p>(defroutes app
+  (GET &ldquo;/nextCommand&rdquo; [] (next-command-handler)) ; <3>
+  (GET &ldquo;*&rdquo;            [] &ldquo;&rdquo;))</p>
+
+<p>(defn -main []</p>
+
+<h2>  (run-jetty app {:port 9090}))</h2>
+
+<p><1> The <code>next-command</code> function implements the core logic. Granted, it is quite simple at the moment
+<2> The <code>next-command-handler</code> function is the interface between the Web World and our web-agnostic algorithm in <code>next-command</code>. Granted, it does not do much at the moment. Be patient ;&ndash;)
+<3> The routes definition directly calls <code>next-command-handler</code>. When time will come to e.g. extract parameters from the Request, this separation of concern will prove more useful.</p>
+
+<h1>[NOTE]</h1>
+
+<h1>While we didn&rsquo;t really feel any pressure to create 2 levels of indirection (<code>next-command-handler</code>, and then <code>next-command</code>), they have been introduced at once to keep this article shorter. In the real world, an intermediate shape of the code could have been to have <code>next-command-handler</code> directly return &ldquo;NOTHING&rdquo;, saving the introduction of the <code>next-command</code> function for later.</h1>
+
+<p>Clojure code puts a strong emphasis on application state management. The less state, the less moving parts, the better. So for the moment, the algorithm requires absolutely no state, and there&rsquo;s indeed no state in the code. Not even yet a kind of &ldquo;Cabin instance&rdquo;. Just a separation of concerns via the introduction of an indirection level.</p>
+
+<p>Stop and restart your server via the Leiningen command line and check that the number of points in the building server web page still doesn&rsquo;t change. We have made some baby steps to be ready to code an efficient (<em>cough, cough</em>) algorithm now.</p>
+
+<p>=== The Omnibus</p>
+
+<p>The Omnibus Elevator algorithm is a very good starter because you only have to take care of the <code>nextCommand</code> call and know the number of floors in the building.</p>
+
+<p>By chance we know it&rsquo;s a 20 story building (it&rsquo;s a little bit more dynamic than that, but at least for the first week, it&rsquo;s 20 floors).</p>
+
+<p>The Omnibus idea is to go to each floor, open the doors, close them and go to the next floor. We do this up and down, all the time. By doing this, we are pretty sure to get anyone waiting in the cabin, and anyone who may want to leave can since we stop at any floors by going up or down. This is not efficient. But this is a very good first baby step into the problem to learn more on the way.</p>
+
+<p>One thing to know, or notice by doing that, is that all the people waiting at a given floor will rush into the cabin as soon as it opens, and all the people inside will rush out at the same time. So you don&rsquo;t need to wait for people to get in or out.</p>
+
+<p>We should start using the other commands at our disposal, rather than answering <code>NOTHING</code>.</p>
+
+<p>At a given floor we should first answer <code>OPEN</code>, then at the next <code>nextCommand</code> call we should answer <code>CLOSE</code>, then move <code>UP</code> or <code>DOWN</code> depending on the current direction of the cabin (ascending or descending phase).</p>
+
+<p>So we have to issue 19 times a <code>OPEN</code>, <code>CLOSE</code>, <code>UP</code> commands and then <code>OPEN</code>, <code>CLOSE</code>, <code>DOWN</code>. Rather than keeping records of what floor the cabin currently is at, and writing the conditional logic for issuing an <code>OPEN</code>, <code>CLOSE</code>, <code>UP</code> or <code>DOWN</code> command, we can <em>predetermine</em> the full commands by creating an infinite lazing sequence cycling through the alternating 5x3 commands while the elevator is going up then 5x3 commands while the elevator is going down:</p>
+
+<h2>[source,clojure]</h2>
+
+<p>(defn make-omnibus [nb-floors]
+  (let [up   (repeat (dec nb-floors) [&ldquo;OPEN&rdquo;, &ldquo;CLOSE&rdquo;, &ldquo;UP&rdquo;])     ; <1></p>
+
+<pre><code>    down (repeat (dec nb-floors) ["OPEN", "CLOSE", "DOWN"])
+    up-then-down (flatten (concat up down))]                  ; &lt;2&gt;
+(concat ["NOTHING"] (cycle up-then-down))))                   ; &lt;3&gt;
+</code></pre>
+
+<hr />
+
+<p><1> <code>dec</code> is the decrement function: <code>(dec 2)</code> returns <code>1</code> (see <a href="http://clojuredocs.org/clojure_core/clojure.core/dec">http://clojuredocs.org/clojure_core/clojure.core/dec</a>[ClojureDocs] or <a href="http://clojure.github.io/clojure/clojure.core-api.html#clojure.core/dec">http://clojure.github.io/clojure/clojure.core-api.html#clojure.core/dec</a>[Reference Doc]). <code>(repeat n a-sequence)</code> produces a sequence repeating <code>a-sequence</code> <code>n</code> times: <code>(repeat 3 ["O", "P"])</code> returns <code>(["O", "P"], ["O", "P"], ["O", "P"])</code> (see <a href="http://clojuredocs.org/clojure_core/clojure.core/repeat">http://clojuredocs.org/clojure_core/clojure.core/repeat</a>[ClojureDocs] or <a href="http://clojure.github.io/clojure/clojure.core-api.html#clojure.core/repeat">http://clojure.github.io/clojure/clojure.core-api.html#clojure.core/repeat</a>[Reference Doc])
+<2> <code>concat</code> concatenates its sequence arguments: <code>(concat [1 2] [3 4])</code> returns <code>(1 2 3 4)</code> (see <a href="http://clojuredocs.org/clojure_core/clojure.core/concat">http://clojuredocs.org/clojure_core/clojure.core/concat</a>[ClojureDocs] or <a href="http://clojure.github.io/clojure/clojure.core-api.html#clojure.core/concat">http://clojure.github.io/clojure/clojure.core-api.html#clojure.core/concat</a>[Reference Doc]). <code>flatten</code> transforms nested sequences into a flat sequence: <code>(flatten [ [1 2] [3 4] ])</code> returns <code>(1 2 3 4)</code> (see <a href="http://clojuredocs.org/clojure_core/clojure.core/flatten">http://clojuredocs.org/clojure_core/clojure.core/flatten</a>[ClojureDocs] or <a href="http://clojure.github.io/clojure/clojure.core-api.html#clojure.core/flatten">http://clojure.github.io/clojure/clojure.core-api.html#clojure.core/flatten</a>[Reference doc])
+<3> <code>cycle</code> creates an infinite sequence as if concatenating its sequence argument to itself, again and again and again: <code>(cycle [1, 2, 3, 2])</code> returns <code>(1 2 3 2 1 2 3 2 1 ...)</code> (see <a href="http://clojuredocs.org/clojure_core/clojure.core/cycle">http://clojuredocs.org/clojure_core/clojure.core/cycle</a>[ClojureDocs] or <a href="http://clojure.github.io/clojure/clojure.core-api.html#clojure.core/cycle">http://clojure.github.io/clojure/clojure.core-api.html#clojure.core/cycle</a>[Reference Doc]). You may have noted that the input types are of the type <code>[ xx, yy ]</code> while the output types are of the type <code>( xx, yy )</code>. <code>[1 2]</code> is a vector, a datastructure. <code>(1 2)</code> is a seq(uence). <code>repeat</code>, <code>concat</code> and <code>cycle</code> return lazy seqs: their elements aren&rsquo;t all computed yet ; they are computed just in time, when their are traversed.</p>
+
+<p>The function <code>make-omnibus</code> returns a lazy-sequence whose shape depends on the number of floors. For 2 floors, it would return <code>("NOTHING", "OPEN", "CLOSE", "UP", "OPEN", "CLOSE", "DOWN", "OPEN", "CLOSE", "UP", "OPEN", "CLOSE", "DOWN", "OPEN" .....)</code>.</p>
+
+<p>For the Omnibus algorithm, we need to store the state of the elevator cabin. +
+Clojure promotes strict separation of concepts of identity, state and value. In a nutshell, it means we will use pure functions at the core of our algorithm, and manage state change at the boundaries of the program. Request handlers will be responsible for managing the state of the elevator cabin (get the previous state, store the new state. The hard work will be delegated to pure functions).</p>
+
+<h1>[NOTE]</h1>
+
+<p>The <code>nextCommand</code> event is interesting. It acts both as an event indicating that the elevator should compute its next command, and it also acts as a getter to query the new state. As you may have learned from good principles from Object Orientation, it&rsquo;s generally not a good idea to have a getter that also changes the internal state of the object. +</p>
+
+<h1>The same applies to Clojure.</h1>
+
+<p>In the Omnibus algorithm, the state is an infinite list of pre-determined commands to issue. To compute the next state, we just remove one element from the list and make this the new state.</p>
+
+<p>We cannot change the external API of our cabin, it is dictated by the rules of the contest. But we can avoid to propagate this design decision to the core of our algorithm. So we&rsquo;ll deal with a coumpound <code>nextCommand</code> at the request handler level: we&rsquo;ll split the <code>nextCommand</code> into a <code>tick</code> state-altering Event and a <code>next-command</code> state-preserving/idempotent Getter.</p>
+
+<h2>[source,clojure]</h2>
+
+<p>(defn tick [elevator] (rest elevator))           ; <2>
+(defn next-command [elevator] (first elevator))  ; <3></p>
+
+<p>(def nb-floors 20)
+(def cabin (atom (make-omnibus nb-floors)))      ; <1>
+(defn next-command-handler []                    ; <4>
+  (let [new-state (swap! cabin tick)]</p>
+
+<pre><code>(next-command new-state)))
+</code></pre>
+
+<p>(defroutes app
+  (GET &ldquo;/nextCommand&rdquo; [] (next-command-handler)) ; <5></p>
+
+<h2>  &hellip;)</h2>
+
+<p><1> The <code>cabin</code> is the piece of state of the application. Here we just encapsulate the state in an atom. An atom is one of the simplest state referencing types of Clojure: an atom holds a value, and has clearly established synchronous functions that can be applied to it to change the value it contains. Underneath, it really is a java.util.concurrent.Atom instance (see <a href="http://clojuredocs.org/clojure_core/clojure.core/atom">http://clojuredocs.org/clojure_core/clojure.core/atom</a>[ClojureDocs] or <a href="http://clojure.github.io/clojure/clojure.core-api.html#clojure.core/atom">http://clojure.github.io/clojure/clojure.core-api.html#clojure.core/atom</a>[Reference Doc]).
+<2> The <code>tick</code> function removes the head of the list and returns the new list. The effect is that the state rotates the list of one element.
+<3> The <code>next-command</code> just returns the head of the list. Note that it&rsquo;s an idempotent function. It does not change the state of the cabin.
+<4> The <code>next-command-handler</code> modifies the cabin state: <code>swap!</code> calls the <code>tick</code> function to the current state value, and the state becomes the result of the call to <code>tick</code> (see <a href="http://clojuredocs.org/clojure_core/clojure.core/swap!">http://clojuredocs.org/clojure_core/clojure.core/swap!</a>[ClojureDocs] or <a href="http://clojure.github.io/clojure/clojure.core-api.html#clojure.core/swap!">http://clojure.github.io/clojure/clojure.core-api.html#clojure.core/swap!</a>[Reference Doc]). Then <code>next-command</code> is called on the new state.
+<5> Note that we changed the name of the handler for the <code>/nextCommand</code> route from <code>next-command</code> to <code>next-command-handler</code></p>
+
+<p>Now stop and start the server again, via Leiningen. You should see your elevator going up and down, starting to get people on board.</p>
+
+<p>image::the-clojure-omnibus/omnibus.png[align=&ldquo;center&rdquo;]</p>
+
+<p>=== Final code</p>
+
+<p>Since there is still so little code for the Omnibus implementation, please find it all below:</p>
+
+<p>.project.clj</p>
+
+<h2>[source,clojure]</h2>
+
+<p>(defproject elevator &ldquo;0.0.1-SNAPSHOT&rdquo;
+  :dependencies [ [org.clojure/clojure     &ldquo;1.5.1&rdquo;]</p>
+
+<pre><code>              [compojure               "1.1.5"]
+              [ring/ring-jetty-adapter "1.2.0"] ])
+</code></pre>
+
+<hr />
+
+<p>.src/main.clj</p>
+
+<h2>[source,clojure]</h2>
+
+<p>(ns main
+  (:use ring.adapter.jetty</p>
+
+<pre><code>    compojure.core))
+</code></pre>
+
+<p>(defn make-omnibus [nb-floors]
+  (let [up   (repeat (dec nb-floors) [&ldquo;OPEN&rdquo;, &ldquo;CLOSE&rdquo;, &ldquo;UP&rdquo;])</p>
+
+<pre><code>    down (repeat (dec nb-floors) ["OPEN", "CLOSE", "DOWN"])
+    up-then-down (flatten (concat up down))]
+(concat ["NOTHING"] (cycle up-then-down))))
+</code></pre>
+
+<p>(defn tick [elevator] (rest elevator))
+(defn next-command [elevator] (first elevator))</p>
+
+<p>(def nb-floors 20)
+(def cabin (atom (make-omnibus nb-floors)))
+(defn next-command-handler []
+  (let [new-state (swap! cabin tick)]</p>
+
+<pre><code>(next-command new-state)))
+</code></pre>
+
+<p>(defroutes app
+  (GET &ldquo;/nextCommand&rdquo; [] (next-command-handler))
+  (GET &ldquo;*&rdquo;            [] &ldquo;&rdquo;))</p>
+
+<p>(defn -main []</p>
+
+<h2>  (run-jetty app {:port 9090}))</h2>
+
+<p>Laurent Petit</p>
+
+<h1>[NOTE]</h1>
+
+<p>To keep this post short and friendly for people new to Clojure, I&rsquo;ve intentionally made some choices in what is presented. For instance, I&rsquo;m not talking about interactive development at all. I&rsquo;m also using the short <code>(:use)</code> directive in the namespace declaration instead of <code>(:require)</code>. +</p>
+
+<h1>I&rsquo;ve also made the choice in this first version to explain how to start the project from the command line. I intend to adapt it to Counterclockwise + Eclipse, especially to make it easier for Windows people to start.</h1>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Code Story, Clojure et moi]]></title>
+    <link href="http://laurentpetit.github.com/blog/2013/02/04/code-story/"/>
+    <updated>2013-02-04T00:11:00+01:00</updated>
+    <id>http://laurentpetit.github.com/blog/2013/02/04/code-story</id>
+    <content type="html"><![CDATA[<p>Cet article est le premier d'une série visant à présenter le langage <a href="http://www.clojure.org">Clojure</a> via l'implémentation d'une solution <em>tout Clojure</em> au challenge CodeStory.</p>
+
+<h1>C'est à quel sujet ?</h1>
+
+<p>J'ai eu le plaisir de participer et me qualifier à la première phase du concours de programmation <a href="http://code-story.net/2013/01/04/concours-2013.html">Code Story 2013</a>.</p>
+
+<p>Pour y parvenir <strong>j'ai choisi d'utiliser le langage <a href="http://www.clojure.org">Clojure</a></strong>.</p>
+
+<p>Je voulais apporter un peu d'exotisme en utilisant la <strong>programmation fonctionnelle</strong>, pour changer un peu de toutes les contributions qui allaient utiliser le même paradigme impératif (Java, Kotlin, Ceylon, Groovy, Scala, etc.).</p>
+
+<blockquote><p>Ce premier article se concentre sur quelques caractéristiques du concours, et pourquoi Clojure est un langage de choix pour les adresser</p></blockquote>
+
+<h1>Web Services</h1>
+
+<p>Pour participer à l'épreuve, il fallait mettre en place un serveur Web. <strong>Toutes les questions, y compris les énoncés, ont été envoyées par HTTP GET ou POST.</strong></p>
+
+<p><a href="https://github.com/ring-clojure/ring">Ring</a> est la librairie standard Clojure pour écrire des applications Web. C'est une abstraction &ldquo;minimaliste&rdquo; (mais pas simpliste !) d'un serveur web.</p>
+
+<blockquote><p>Clojure+Ring pour faire une appli Web : c'est simple, lisible, concis</p></blockquote>
+
+<h1>TDD</h1>
+
+<p>Le déroulement des épreuves imposait un format analogue à la méthodologie <code>TDD</code> (Test-Driven Development) :</p>
+
+<ul>
+<li>Envoi d'un test en boucle sur nos serveurs, jusqu'à obtention d'une réponse correcte</li>
+<li>Complexification incrémentale des tests envoyés</li>
+</ul>
+
+
+<p>Dans ces conditions, il n'est pas rare (ni anormal) d'avoir à réécrire de grandes portions de code.
+<em>Une étape de refactoring entre chaque nouveau test est généralement nécessaire en TDD</em></p>
+
+<p><strong>Il est naturel d'adopter l'approche TDD en Clojure</strong>, car le langage :</p>
+
+<ul>
+<li><strong>Facilite l'écriture des tests</strong> : les tests sont concis, lisibles, faciles à refactorer.</li>
+<li><strong>Facilite l'écriture du code</strong> : écrire du nouveau code en Clojure est une danse entre l'éditeur et l'environnement dynamique d'exécution. Tout nouveau code est façonné / testé dans l'environnement d'exécution. Imaginez le remplacement à chaud du mode Debug de votre IDE, <em>&ldquo;on steroïds&rdquo;</em>.</li>
+<li><strong>Favorise le refactoring</strong> : le code Clojure est généralement très concis. Souvent 3 à 10 fois plus concis que son équivalent Java, par exemple. La masse de code à modifier fait moins peur. De plus, l'unité de réutilisation de code étant la fonction, et non la classe, le code est naturellement plus facile à refactorer.</li>
+</ul>
+
+
+<blockquote><p>Clojure pour faire du TDD, c'est efficace, lisible, simple, concis</p></blockquote>
+
+<h1>Performances</h1>
+
+<p>Le dernier exercice du concours a soumis nos méninges à rude épreuve. Il ne suffisait pas d'avoir un code qui fonctionne, il fallait trouver un code &ldquo;performant&rdquo;.</p>
+
+<p>Mais pas <em>&ldquo;Performant&rdquo;</em> comme dans &ldquo;comment gagner quelques microsecondes dans l'exécution d'une requête portant sur quelques éléments à traiter&rdquo;. NON. <em>&ldquo;Performant&rdquo;</em> comme dans &ldquo;écrire un algorithme pouvant traiter une requête portant sur plusieurs centaines de milliers, ou des millions, d'éléments&rdquo;.</p>
+
+<p>Pour cette épreuve, écrire un algorithme récursif &ldquo;naïf&rdquo;, puis tenter des optimisations locales dessus, c'était un peu comme être sur le Titanic pendant le naufrage, à s'acharner à graisser les portes de la salle de réception. Ça occupe, mais ça ne sert à rien. Au-delà de 100 entrées, un algo &ldquo;naïf&rdquo; prenait déjà plusieurs dizaines de secondes. <strong>Pour CodeStory, il fallait être capable de traiter des requêtes de 50.000 éléments ou plus</strong> ! On attend toujours que les algorithmes récursifs aient fini de répondre &hellip; (<a href="https://twitter.com/CodeStory/status/297268190566813696">pauvres chatons</a>)</p>
+
+<blockquote><p>Pour être honnête, sur ce genre de problème, le langage de programmation importe peu</p></blockquote>
+
+<p>Si vous n'avez pas le bon algorithme, aucun langage ni aucun ordinateur si puissant soit-il ne vous viendra en aide : vous n'y arriverez pas.
+Un algorithme de complexité algorithmique quasi linéaire (dont le temps de réponse est proportionnel, ou légèrement proportionnel au nombre d'éléments à traiter) l'emportera haut la main sur n'importe quel algorithme de complexité exponentielle, et ce dès que la taille du problème dépassera quelques dizaines d'éléments.</p>
+
+<p>Là encore, soulignons les <strong>caractéristiques de Clojure qui ont facilité la résolution de ce problème</strong>:</p>
+
+<ul>
+<li><strong>Facilité de prototypage</strong> : la librairie de base de Clojure est riche en fonctions de manipulation de collections. Les sort, group-by, max-key, etc. y sont presque toutes !</li>
+<li><strong>Facilité de refactoring</strong> : le code produit restant concis, il est facile de le refactorer, d'en produire une version différente. Le fait de manipuler des fonctions plutôt que des classes est un accélérateur de ce phénomène.</li>
+<li><strong>Code performant</strong> : à algorithme identique, il reste important que le langage utilisé ne soit pas extrêmement plus lent que les langages &ldquo;concurrents&rdquo;. En utilisant du Clojure &ldquo;idiomatique&rdquo;, sans chercher à optimiser, sans compromettre la lisibilité (sous réserve de connaître Clojure et les fonctions standards utilisées, oeuf de course), le code produit s'est avéré du même ordre de grandeur que les solutions concurrentes. En moyenne seulement 2, parfois 3 fois moins rapide. Il serait possible d'optimiser pour aller &ldquo;talonner&rdquo; les langages impératifs (utilisation de tableaux, par ex.), mais c'était juste non requis, donc non nécessaire.</li>
+</ul>
+
+
+<h1>C'est tout pour aujourd'hui</h1>
+
+<p>Si ce premier article vous a mis l'eau à la bouche, et que vous souhaitez que je continue la série avec des articles techniques et du code, envoyez-moi un petit mot d'encouragement :&ndash;).</p>
+
+<p>Merci de m'avoir lu.</p>
+]]></content>
+  </entry>
+  
+</feed>

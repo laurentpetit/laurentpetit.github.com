@@ -265,7 +265,20 @@ It targets developers beginning or with some notions of Clojure, who want to qui
 <p>You can register yourself with a fancy url just to see how it works. Type in your name, some email and let&#8217;s say <a href="http://127.0.0.1:9090/">http://127.0.0.1:9090/</a></p>
 </div>
 <div class="paragraph">
+<p>It should look like this:</p>
+</div>
+<div class="imageblock" style="text-align: center">
+<div class="content">
+<img src="/images/the-clojure-omnibus/register.png" alt="register">
+</div>
+</div>
+<div class="paragraph">
 <p>You can now have a glimpse at the cabin, and the building. The building&#8217;s server at <a href="http://localhost:8080/">http://localhost:8080/</a> tries to connect to a cabin server at <a href="http://localhost:9090/">http://localhost:9090/</a> but finds nothing, and spurs error after error.</p>
+</div>
+<div class="imageblock" style="text-align: center">
+<div class="content">
+<img src="/images/the-clojure-omnibus/fail.png" alt="fail">
+</div>
 </div>
 <div class="paragraph">
 <p>Notice the points goes down quite a bit. So you should probably unregister.</p>
@@ -347,6 +360,11 @@ It targets developers beginning or with some notions of Clojure, who want to qui
 </div>
 <div class="paragraph">
 <p>Then register again in your building server. You should see that the score now stays at zero. You&#8217;ll notice also that some people are actually calling our cabin, but as every time the building server calls the <code>nextCommand</code> the cabin answers <code>NOTHING</code>, nothing moves, and the people can die waiting for the cabin to come.</p>
+</div>
+<div class="imageblock" style="text-align: center">
+<div class="content">
+<img src="/images/the-clojure-omnibus/nothing.png" alt="nothing">
+</div>
 </div>
 </div>
 <div class="sect2">
@@ -523,6 +541,11 @@ The same applies to Clojure.</p>
 </div>
 <div class="paragraph">
 <p>Now stop and start the server again, via Leiningen. You should see your elevator going up and down, starting to get people on board.</p>
+</div>
+<div class="imageblock" style="text-align: center">
+<div class="content">
+<img src="/images/the-clojure-omnibus/omnibus.png" alt="omnibus">
+</div>
 </div>
 </div>
 <div class="sect2">
